@@ -1,0 +1,12 @@
+smolagents
+python-dotenv
+pytz
+pyyaml
+gradio
+huggingface_hub
+streamlit
+ddgs
+requests
+duckduckgo-search
+google-search-results
+Pillow
