@@ -4,13 +4,15 @@
 
 ![SmolAgents Logo](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/smolagents/smolagents.png)
 
-[![Deploy](https://img.shields.io/badge/Deploy-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://streamlit.io/)
+[![Deploy](https://img.shields.io/badge/Deploy-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.8+-green?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://streamlit.io/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant.streamlit.app/)
 [![Hugging Face](https://img.shields.io/badge/🤗-Hugging%20Face-yellow?style=for-the-badge)](https://huggingface.co/)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 **An intelligent AI agent with advanced features for web search, weather queries, image generation and more!**
+
+🌐 **[Try the Live Demo](https://smolagents-ai-assistant.streamlit.app/)**
 
 [Demo](#-demo) • [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Tools](#-tools)
 
@@ -42,6 +44,10 @@
 ## 🎯 About the Project
 
 This project is a **fully functional AI agent** built with the **smolagents** library from Hugging Face. The agent uses the powerful **Qwen2.5-Coder-32B-Instruct** model and provides a user-friendly **Streamlit** interface.
+
+### 🚀 Live Deployment
+The application is **now deployed and live** on Streamlit Cloud:  
+👉 **[smolagents-ai-assistant.streamlit.app](https://smolagents-ai-assistant.streamlit.app/)** 👈
 
 The agent can:
 - 🌐 **Perform web research** (DuckDuckGo, Google)
