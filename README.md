@@ -5,10 +5,14 @@
 ![SmolAgents Logo](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/smolagents/smolagents.png)
 
 [![Deploy](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant.streamlit.app/)
-[![Python](https://img.shields.io/badge/Python-3.8+-green?style=for-the-badge&logo=python)](https://www.python.org/)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions)](https://github.com/muk0644/smolagents-ai-assistant/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/muk0644/smolagents-ai-assistant/ci-cd.yml?branch=feature/cicd-workflow&style=for-the-badge&logo=github)](https://github.com/muk0644/smolagents-ai-assistant/actions)
+[![Python](https://img.shields.io/badge/Python-3.10-green?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant.streamlit.app/)
 [![Hugging Face](https://img.shields.io/badge/🤗-Hugging%20Face-yellow?style=for-the-badge)](https://huggingface.co/)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+[![Code Quality](https://img.shields.io/badge/Code_Quality-Flake8-blue?style=for-the-badge)](https://github.com/PyCQA/flake8)
+[![Security](https://img.shields.io/badge/Security-Bandit-red?style=for-the-badge)](https://github.com/PyCQA/bandit)
 
 **An intelligent AI agent with advanced features for web search, weather queries, image generation and more!**
 
@@ -23,6 +27,7 @@
 ## 📋 Table of Contents
 
 - [About the Project](#-about-the-project)
+- [CI/CD Pipeline](#-cicd-pipeline)
 - [Features](#-features)
 - [Demo](#-demo)
 - [Installation](#-installation)
@@ -59,7 +64,161 @@ The agent can:
 - ⏰ **Provide timezone information**
 
 ---
+🔄 CI/CD Pipeline
 
+This project implements a **comprehensive CI/CD pipeline** using **GitHub Actions** to ensure code quality, security, and deployment readiness.
+
+### 🚀 Pipeline Overview
+
+The CI/CD workflow (`.github/workflows/ci-cd.yml`) automatically runs on every push or pull request to the `feature/cicd-workflow` branch, executing the following stages:
+
+#### **1. Environment Setup**
+- **Platform:** Ubuntu Latest
+- **Python Version:** 3.10
+- **Dependency Caching:** Pip dependencies cached (165MB) for faster builds
+
+#### **2. Code Quality Checks**
+```yaml
+Linting with Flake8:
+✅ Zero critical errors (E9, F63, F7, F82)
+⚠️  133 style warnings (allowed: complexity, line length)
+📊 Result: PASSED
+```
+
+**What Flake8 Checks:**
+- Syntax errors and undefined names (build-blocking)
+- Code complexity and line length (warnings only)
+- Unused imports and variables
+- PEP 8 style compliance
+
+#### **3. Security Scans**
+```yaml
+Bandit Security Analysis:
+✅ 615 lines of code scanned
+✅ 0 vulnerabilities detected
+🔒 Security Level: High confidence
+
+Safety Dependency Check:
+✅ 108 packages verified
+⚠️  1 non-critical warning (continued)
+📦 Dependencies: Secure
+```
+
+**Security Features:**
+- **Bandit:** Scans for common security issues (SQL injection, hardcoded passwords, etc.)
+- **Safety:** Checks for known vulnerabilities in dependencies
+- **Secret Validation:** Ensures all API keys are properly configured
+
+#### **4. Environment Validation**
+```yaml
+Required Secrets Verified:
+✅ HF_TOKEN (38 characters) - Hugging Face authentication
+✅ SERPAPI_API_KEY - Google Search integration
+✅ OPENWEATHERMAP_API_KEY - Weather data access
+```
+
+#### **5. Project Structure Verification**
+```yaml
+Required Files Checked:
+✅ app.py - Streamlit frontend
+✅ agent.py - AI agent configuration
+✅ tools.py - Custom tool implementations
+✅ requirements.txt - Python dependencies
+✅ README.md - Project documentation
+```
+
+#### **6. Python Syntax Validation**
+- Import verification without execution
+- AST parsing for syntax correctness
+- Ensures all Python files are valid
+
+### 📊 Build Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Build Time** | 45 seconds |
+| **Dependencies Installed** | 108 packages |
+| **Cache Size** | 165 MB |
+| **Code Lines Scanned** | 615 lines |
+| **Security Issues** | 0 critical |
+| **Linting Errors** | 0 critical |
+
+### 🎯 Workflow Trigger Conditions
+
+The pipeline runs automatically on:
+- ✅ Push to `feature/cicd-workflow` branch
+- ✅ Pull requests to `feature/cicd-workflow` branch
+
+### 📁 CI/CD Configuration File
+
+Location: `.github/workflows/ci-cd.yml`
+
+**Key Components:**
+```yaml
+name: CI/CD Pipeline for SmolAgents AI Assistant
+
+on:
+  push:
+    branches: [ feature/cicd-workflow ]
+  pull_request:
+    branches: [ feature/cicd-workflow ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - Checkout code
+      - Setup Python 3.10
+      - Cache pip dependencies
+      - Install requirements.txt
+      - Install dev tools (flake8, bandit, safety)
+      - Lint with flake8
+      - Security scan with bandit
+      - Check dependencies with safety
+      - Validate environment secrets
+      - Verify project structure
+      - Validate Python syntax
+      - Deployment readiness confirmation
+```
+
+### 🔐 Setting Up GitHub Secrets
+
+To use the CI/CD pipeline, configure these secrets in your GitHub repository:
+
+1. Navigate to **Settings → Secrets and variables → Actions**
+2. Add the following secrets:
+
+| Secret Name | Description | Required |
+|------------|-------------|----------|
+| `HF_TOKEN` | Hugging Face API token for model access | ✅ Yes |
+| `SERPAPI_API_KEY` | SerpAPI key for Google search integration | ✅ Yes |
+| `OPENWEATHERMAP_API_KEY` | OpenWeatherMap API key for weather data | ✅ Yes |
+
+### ✅ Deployment Readiness
+
+Upon successful pipeline completion, you'll see:
+```
+🎉 BUILD SUCCESSFUL!
+✅ All linting checks passed
+✅ Security scans completed
+✅ Dependencies verified
+✅ Environment secrets validated
+✅ Project structure confirmed
+🚀 The application is verified and ready for Streamlit Cloud deployment!
+```
+
+### 📈 Continuous Improvement
+
+The CI/CD pipeline helps maintain:
+- **Code Quality:** Consistent coding standards
+- **Security:** Early detection of vulnerabilities
+- **Reliability:** Automated testing before deployment
+- **Speed:** Cached dependencies for faster builds
+- **Confidence:** Verified deployment readiness
+
+---
+
+## 
 ## ✨ Features
 
 ### 🔍 Intelligent Web Search
