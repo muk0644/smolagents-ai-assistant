@@ -4,11 +4,11 @@
 
 ![SmolAgents Logo](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/smolagents/smolagents.png)
 
-[![Deploy](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant.streamlit.app/)
+[![Deploy](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-agent.streamlit.app/)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions)](https://github.com/muk0644/smolagents-ai-assistant/actions)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/muk0644/smolagents-ai-assistant/ci-cd.yml?branch=feature/cicd-workflow&style=for-the-badge&logo=github)](https://github.com/muk0644/smolagents-ai-assistant/actions)
 [![Python](https://img.shields.io/badge/Python-3.10-green?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant.streamlit.app/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-agent.streamlit.app/)
 [![Hugging Face](https://img.shields.io/badge/🤗-Hugging%20Face-yellow?style=for-the-badge)](https://huggingface.co/)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 [![Code Quality](https://img.shields.io/badge/Code_Quality-Flake8-blue?style=for-the-badge)](https://github.com/PyCQA/flake8)
@@ -16,7 +16,7 @@
 
 **An intelligent AI agent with advanced features for web search, weather queries, image generation and more!**
 
-🌐 **[Try the Live Demo](https://smolagents-ai-assistant.streamlit.app/)**
+🌐 **[Try the Live Demo](https://smolagents-ai-agent.streamlit.app/)**
 
 [Demo](#-demo) • [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Tools](#-tools)
 
@@ -52,7 +52,7 @@ This project is a **fully functional AI agent** built with the **smolagents** li
 
 ### 🚀 Live Deployment
 The application is **now deployed and live** on Streamlit Cloud:  
-👉 **[smolagents-ai-assistant.streamlit.app](https://smolagents-ai-assistant.streamlit.app/)** 👈
+👉 **[smolagents-ai-agent.streamlit.app](https://smolagents-ai-agent.streamlit.app/)** 👈
 
 The agent can:
 - 🌐 **Perform web research** (DuckDuckGo, Google)
@@ -233,8 +233,9 @@ The CI/CD pipeline helps maintain:
 
 ### 🎨 Image Generation
 - Text-to-Image with Hugging Face Models
-- Automatic saving to `generated_images/`
-- High-resolution output
+- Ephemeral file system (images converted to base64)
+- High-resolution output with download buttons
+- Stored in session history as base64 strings
 
 ### 🧮 Python Interpreter
 - Executes Python code directly
@@ -358,7 +359,7 @@ print(response)
 ```
 smolagents-ai-assistant/
 │
-├── app.py                  # Streamlit Frontend
+├── app.py                  # Streamlit Frontend (Multi-session UI)
 ├── agent.py               # Agent configuration & initialization
 ├── tools.py               # Custom tool definitions
 ├── requirements.txt       # Python dependencies
@@ -370,8 +371,12 @@ smolagents-ai-assistant/
 ├── .env                   # Environment variables (create from .env.example)
 ├── .env.example          # Template for environment variables
 │
-├── generated_images/     # Generated images (AI outputs)
-│   └── .gitkeep          # Keep folder in Git
+├── user_data/            # Per-user JSON session storage
+│   └── user_example_com.json  # Email-based session files
+│
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml     # GitHub Actions CI/CD pipeline
 ```
 
 ---
@@ -446,7 +451,8 @@ smolagents-ai-assistant/
 "Generate an image of a cyberpunk city"
 ```
 - Uses Hugging Face Diffusion Models
-- Saves to `generated_images/`
+- Ephemeral storage (converted to base64)
+- Displayed in chat with download button
 
 ---
 
@@ -469,21 +475,150 @@ def initialize_agent():
 - Caching for better performance
 - Flexible model configuration
 
-### `app.py` - Streamlit Frontend
+### `app.py` - Streamlit Frontend (Production-Ready UI)
+
+**Overview:**  
+`app.py` is the complete Streamlit application deployed on [Streamlit Cloud](https://smolagents-ai-agent.streamlit.app/) featuring a production-grade multi-session chat interfac UI
+
+#### 🎨 **UI Architecture**
+
+**1. Authentication System (Email-Based)**
 ```python
-# Main components:
-- Session State Management
-- Chat History
-- Avatar Icons (Agent & User)
-- Image Display Logic
-- Error Handling
+# Centered login screen with professional styling
+- Email validation (requires '@' symbol)
+- Session persistence across page reloads
+- Clean, minimalist design with centered layout
 ```
 
-**UI Features:**
-- Responsive Design
-- Chat-based interaction
-- Automatic image display
-- "New Chat" button
+**2. Ultra-Compact Sidebar (ChatGPT/Gemini Style)**
+```css
+/* Custom CSS injection for professional appearance */
+- Gap: 0.25rem between elements
+- Padding: 0.4-0.5rem for compact spacing
+- Font sizes: 0.75-0.85rem for dense information
+- Hover effects on image thumbnails (80px height)
+```
+
+**Sidebar Components:**
+- ✅ **User Status**: Display logged-in email (0.8rem, subtle)
+- 🔢 **Global Tool Counter**: `{usage}/{MAX_TOOL_LIMIT}` with color indicator
+- ⏰ **Timer**: Minutes remaining until auto-reset
+- ➕ **New Chat Button**: Primary action (full width)
+- 🖼️ **Your Contents Gallery**: Latest 3 generated images as thumbnails
+- 📚 **Chats History**: Session list with active indicator (● vs ○)
+- 🗑️ **Reset Button**: Clear all sessions and counters
+- 🚪 **Logout Button**: Return to login screen
+
+**3. Multi-Session Management**
+```python
+# Per-user JSON storage in user_data/
+User Data Schema:
+{
+  "global_tool_usage": 3,            # Shared across all sessions
+  "last_reset_time": "ISO timestamp",
+  "sessions": [                       # Max 5 sessions (auto-rotation)
+    {
+      "session_id": "millisecond_timestamp",
+      "title": "Weather in Berlin",   # Auto-generated from first message
+      "messages": [...]                # Full chat history
+    }
+  ]
+}
+```
+
+**4. Ephemeral Image System**
+```python
+# Security-first image handling
+Flow:
+1. Agent generates image → local file created
+2. Read image file into memory (bytes)
+3. DELETE file immediately (ephemeral)
+4. Convert to base64 string
+5. Store base64 in JSON (portable, persistent)
+6. Display with download button
+
+Benefits:
+- Zero disk usage (no folder accumulation)
+- Portable JSON files
+- Secure (no file path leakage)
+```
+
+**5. Global Tool Quota System**
+```python
+# Cross-session tool limiting
+MAX_TOOL_LIMIT = 10
+RESET_INTERVAL_MINUTES = 60
+
+Logic:
+- Tracks tool usage GLOBALLY per email (not per session)
+- Auto-resets after 60 minutes
+- Robust detection via agent.memory.steps inspection
+- Visual warnings when limit reached
+```
+
+**6. Professional Chat Interface**
+```python
+Features:
+- Custom avatars: Agent (Hugging Face logo) + User (👤)
+- Message history rendering with role-based styling
+- Spinner with "Thinking..." during agent execution
+- Error handling with user-friendly messages
+- Auto-scroll to latest message
+- Download buttons for generated images
+```
+
+#### 🚀 **Deployment Features**
+
+**Streamlit Cloud Integration:**
+- Environment variables via Streamlit secrets (`st.secrets`)
+- `HF_TOKEN` required for Hugging Face model access
+- `SERPAPI_API_KEY` for Google search integration
+- `OPENWEATHERMAP_API_KEY` for weather data
+
+**Production Optimizations:**
+- Session state persistence with `@st.cache_resource`
+- Agent instance caching for performance
+- JSON-based storage for serverless compatibility
+- Automatic UI updates with `st.rerun()`
+
+#### 🎯 **Key Implementation Highlights**
+
+**Tool Detection Algorithm:**
+```python
+def did_agent_use_tools(agent) -> bool:
+    """Scans agent.memory.steps in REVERSE to detect tool usage"""
+    # Inspects actual execution log (not keywords)
+    # Excludes 'final_answer' (not a tool)
+    # Returns True only if real tools were invoked
+```
+
+**Time-Based Auto-Reset:**
+```python
+# Automatic quota reset after 60 minutes
+elapsed_time = datetime.now() - st.session_state.last_reset_time
+if elapsed_minutes >= RESET_INTERVAL_MINUTES:
+    reset_global_counter_and_save()
+```
+
+**Session Rotation:**
+```python
+# Keeps only latest 5 sessions per user
+if len(all_sessions) > MAX_SESSIONS_PER_USER:
+    all_sessions.pop(0)  # Remove oldest
+```
+
+#### 📊 **Technical Stack**
+- **Frontend Framework**: Streamlit 1.53.0
+- **Styling**: Custom CSS with `unsafe_allow_html=True`
+- **Storage**: JSON files (`user_data/` directory)
+- **Authentication**: Email-based (no external auth service)
+- **Deployment**: Streamlit Cloud (serverless)
+
+#### 🔐 **Security Features**
+- No hardcoded secrets (uses `.env` locally, Streamlit secrets in cloud)
+- Ephemeral image handling (no persistent files)
+- Input validation on email field
+- Proper error handling and user feedback
 
 ### `tools.py` - Tool Definitions
 
@@ -651,8 +786,8 @@ User: "Generate an image of a futuristic city at sunset"
 
 Agent:
 → Uses: text-to-image tool
-→ Saves: generated_images/city_sunset_123.png
-→ Displays: Image in chat
+→ Converts: Image to base64 (ephemeral file deleted)
+→ Displays: Image in chat with download button
 ```
 
 ### Example 4: Web Research
@@ -722,5 +857,12 @@ pip install smolagents streamlit python-dotenv
 ### Problem: Image generation fails
 **Solution:**
 ```bash
-# Create generated_images/ folder
-mkdir generated_images
+# Check HF_TOKEN in .env
+echo $HF_TOKEN
+
+# Verify text-to-image tool is loaded
+# Check agent.py for load_tool("agents-course/text-to-image")
+
+# Ensure sufficient disk space (for temporary files)
+df -h
+```
