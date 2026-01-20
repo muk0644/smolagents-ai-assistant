@@ -86,7 +86,10 @@ class WeatherInfoTool(Tool):
             return "Error: OPENWEATHERMAP_API_KEY not found in .env file."
         try:
             url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
-            response = requests.get(url)
+            
+            # FIXED: Added timeout=10 to prevent infinite hanging and satisfy Bandit B113
+            response = requests.get(url, timeout=10) 
+            
             data = response.json()
             if response.status_code == 200:
                 temp = data['main']['temp']
@@ -94,6 +97,8 @@ class WeatherInfoTool(Tool):
                 return f"Current weather in {location}: {desc}, {temp}°C"
             else:
                 return f"Error fetching weather: {data.get('message', 'City not found or API error')}"
+        except requests.exceptions.Timeout:
+            return f"Error: The request to the weather service timed out."
         except Exception as e:
             return f"API Request Error: {str(e)}"
 
