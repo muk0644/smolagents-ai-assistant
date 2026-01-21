@@ -21,11 +21,11 @@ license: mit
 
 ![SmolAgents Logo](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/smolagents/smolagents.png)
 
-[![Deploy](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-agent.streamlit.app/)
+[![Deploy](https://img.shields.io/badge/🚀_Live_Demo-HF_Spaces-FF4B4B?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/muk0644/smolagents-ai-assistant)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions)](https://github.com/muk0644/smolagents-ai-assistant/actions)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/muk0644/smolagents-ai-assistant/ci-cd.yml?branch=feature/cicd-workflow&style=for-the-badge&logo=github)](https://github.com/muk0644/smolagents-ai-assistant/actions)
 [![Python](https://img.shields.io/badge/Python-3.10-green?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-agent.streamlit.app/)
+[![HF Spaces](https://img.shields.io/badge/HF_Spaces-Docker-FF4B4B?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/muk0644/smolagents-ai-assistant)
 [![Hugging Face](https://img.shields.io/badge/🤗-Hugging%20Face-yellow?style=for-the-badge)](https://huggingface.co/)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 [![Code Quality](https://img.shields.io/badge/Code_Quality-Flake8-blue?style=for-the-badge)](https://github.com/PyCQA/flake8)
@@ -33,7 +33,7 @@ license: mit
 
 **An intelligent AI agent with advanced features for web search, weather queries, image generation and more!**
 
-🌐 **[Try the Live Demo](https://smolagents-ai-agent.streamlit.app/)**
+🌐 **[Try the Live Demo](https://huggingface.co/spaces/muk0644/smolagents-ai-assistant)**
 
 [Demo](#-demo) • [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Tools](#-tools)
 
