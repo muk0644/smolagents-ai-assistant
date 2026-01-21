@@ -48,15 +48,26 @@
 
 ## 🎯 About the Project
 
-This project is a **fully functional AI agent** built with the **smolagents** library from Hugging Face. The agent supports **dual AI models** via an easy-to-use dropdown selector:
+This project is a **fully functional, tool-augmented AI agent** built with the **smolagents** library from Hugging Face. It features **dual LLM models** via an easy-to-use dropdown selector and is deployed across **dual cloud platforms** with an enterprise-grade **LLMOps pipeline**.
+
+**Supported Models:**
 - **Qwen2.5-Coder-32B-Instruct** (HuggingFace - Free)
 - **Gemini 2.5 Flash** (Google - Free with API key)
 
-It provides a user-friendly **Streamlit** interface with multi-model support.
+### 🚀 Dual Cloud Deployment
 
-### 🚀 Live Deployment
-The application is **now deployed and live** on Streamlit Cloud:  
-👉 **[smolagents-ai-assistant-qwen-gemini.streamlit.app](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/)** 👈
+The application is deployed on two platforms, optimized for different use cases:
+
+**1. Streamlit Cloud (Rapid Prototyping)**
+- 👉 **[smolagents-ai-assistant-qwen-gemini.streamlit.app](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/)** 
+- Branch: `cicd-workflow2`
+- Quick iteration and real-time updates
+
+**2. HuggingFace Spaces (Production MLOps)**
+- Docker containerized deployment
+- Branch: `feature/hugging-face-spaces`
+- Automated CI/CD pipeline with GitHub Actions
+- Continuous testing, validation, and real-time deployment
 
 The agent can:
 - 🌐 **Perform web research** (DuckDuckGo, Google)
@@ -68,9 +79,10 @@ The agent can:
 - ⏰ **Provide timezone information**
 
 ---
-🔄 CI/CD Pipeline
 
-This project implements a **comprehensive CI/CD pipeline** using **GitHub Actions** to ensure code quality, security, and deployment readiness.
+## 🔄 LLMOps & CI/CD Pipeline
+
+This project implements a **comprehensive LLMOps pipeline** using **GitHub Actions** to ensure code quality, security, testing, and automated deployment of LLM-powered applications.
 
 ### 🚀 Pipeline Overview
 
