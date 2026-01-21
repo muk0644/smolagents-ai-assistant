@@ -2,9 +2,9 @@ name: CI/CD Pipeline for SmolAgents AI Assistant
 
 on:
   push:
-    branches: [ feature/cicd-workflow ]
+    branches: [ feature/cicd-workflow, feature/hugging-face-spaces ]
   pull_request:
-    branches: [ feature/cicd-workflow ]
+    branches: [ feature/cicd-workflow, feature/hugging-face-spaces ]
 
 jobs:
   build-and-test:
@@ -130,7 +130,21 @@ jobs:
         echo "✅ Project structure confirmed"
         echo "✅ Docker image build verified"
         echo ""
-        echo "🚀 The application is verified and ready for Streamlit Cloud deployment!"
+        echo "🚀 The application is verified and ready for deployment!"
         echo ""
-        echo "Deployment URL: https://smolagents-ai-assistant.streamlit.app/"
+        echo "HF Spaces: https://huggingface.co/spaces/muk0644/smolagents-ai-assistant"
         echo "=================================================="
+    
+    # Step 14: Deploy to Hugging Face Spaces (only on feature/hugging-face-spaces branch)
+    - name: 🚀 Deploy to Hugging Face Spaces
+      if: github.ref == 'refs/heads/feature/hugging-face-spaces' && success()
+      env:
+        HF_REPO_TOKEN: ${{ secrets.HF_REPO_PUSH_TOKEN }}
+      run: |
+        echo "📤 Pushing to Hugging Face Spaces..."
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "GitHub Actions"
+        git remote add hf-spaces https://muk0644:${HF_REPO_TOKEN}@huggingface.co/spaces/muk0644/smolagents-ai-assistant.git || true
+        git fetch hf-spaces main || true
+        git push hf-spaces HEAD:main
+        echo "✅ Successfully deployed to Hugging Face Spaces!"

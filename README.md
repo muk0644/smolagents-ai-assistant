@@ -57,6 +57,7 @@ license: mit
 - [API Keys](#-api-keys)
 - [Development](#-development)
 - [Examples](#-examples)
+- [Deployment & Workflow Guide](#-deployment--workflow-guide)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
 - [Contact](#-contact)
@@ -331,20 +332,50 @@ SERPAPI_API_KEY=your_serpapi_key_here  # Optional for Google Search
 
 ## 🔐 Configuration
 
-### Hugging Face Token
+### Hugging Face Tokens
+
+#### **HF_TOKEN** (Read Access)
 1. Go to [Hugging Face Settings](https://huggingface.co/settings/tokens)
-2. Create a new Access Token
+2. Create a new Access Token with **Read** permission
 3. Copy the token to the `.env` file
+```env
+HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx
+```
+
+#### **HF_REPO_PUSH_TOKEN** (Write Access - for Deployment)
+1. Go to [Hugging Face Settings](https://huggingface.co/settings/tokens)
+2. Create a **NEW** Access Token with **`repo_push`** permission (write-enabled)
+3. Store in **TWO** places:
+   - **Local `.env` file** for manual deployment:
+   ```env
+   HF_REPO_PUSH_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx
+   ```
+   - **GitHub Secret** for automated CI/CD (Step 14):
+     - Go to: GitHub Repo → Settings → Secrets and variables → Actions
+     - Name: `HF_REPO_PUSH_TOKEN`
+     - Value: Your HF write token
+
+**Why two separate tokens?**
+- Follows security best practices (principle of least privilege)
+- Read token accesses Hub only
+- Write token can modify HF Spaces repository
+- Keeps permissions compartmentalized
 
 ### OpenWeatherMap API Key
 1. Register at [OpenWeatherMap](https://openweathermap.org/api)
 2. Generate a free API key
 3. Add it to the `.env` file
+```env
+OPENWEATHERMAP_API_KEY=xxxxxxxxxxxxxxxxxxxxx
+```
 
 ### SerpAPI Key (Optional)
 1. Register at [SerpAPI](https://serpapi.com/)
 2. Get your API key
 3. Add it to the `.env` file
+```env
+SERPAPI_API_KEY=xxxxxxxxxxxxxxxxxxxxx
+```
 
 ---
 
@@ -692,7 +723,27 @@ HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx
 - Go to Settings → Access Tokens
 - Create a new token (Read access is sufficient)
 
-#### 2. OpenWeatherMap API Key (REQUIRED for weather)
+#### 2. HF_REPO_PUSH_TOKEN (REQUIRED for Automated Deployment)
+```env
+HF_REPO_PUSH_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx
+```
+**How to obtain:**
+- Register at [Hugging Face](https://huggingface.co)
+- Go to Settings → Access Tokens
+- Create a **NEW** token with `repo_push` permission (write-enabled)
+- This token is different from HF_TOKEN - it has **write permissions**
+
+**Where it's used:**
+- 🚀 **GitHub Actions Secret:** Used by Step 14 to deploy to HF Spaces
+- 📝 **Local Manual Deployment:** Use for manual `git push` to HF Spaces
+- ✅ Must have "repo_push" scope enabled
+
+**Why separate tokens?**
+- **HF_TOKEN** (read-only): For reading models, datasets, accessing Hub
+- **HF_REPO_PUSH_TOKEN** (write): For pushing code to HF Spaces repository
+- **Security:** Follows principle of least privilege - each token has specific permissions
+
+#### 3. OpenWeatherMap API Key (REQUIRED for weather)
 ```env
 OPENWEATHERMAP_API_KEY=xxxxxxxxxxxxxxxxxxxxx
 ```
@@ -701,7 +752,7 @@ OPENWEATHERMAP_API_KEY=xxxxxxxxxxxxxxxxxxxxx
 - Go to API Keys
 - Free plan: 1,000 calls/day
 
-#### 3. SerpAPI Key (OPTIONAL for Google Search)
+#### 4. SerpAPI Key (OPTIONAL for Google Search)
 ```env
 SERPAPI_API_KEY=xxxxxxxxxxxxxxxxxxxxx
 ```
@@ -874,13 +925,21 @@ git push https://muk0644:YOUR_REPO_PUSH_TOKEN@huggingface.co/spaces/muk0644/smol
 # Get your token from:
 # https://huggingface.co/settings/tokens
 # Create token with "repo" scope for write access
+# Token name: HF_REPO_PUSH_TOKEN (for consistency)
 ```
 
-**Security Best Practices:**
-- ✅ Store token in `.env` file locally (protected by `.gitignore`)
-- ✅ Never commit token to git
-- ✅ Use environment variable in scripts: `$REPO_PUSH_TOKEN`
+**Token Storage & Security:**
+- 🔐 **GitHub Secret:** Stored as `HF_REPO_PUSH_TOKEN` in GitHub Actions (for Step 14)
+- 📝 **Local Development:** Store token in `.env` file locally (protected by `.gitignore`)
+- ✅ Use environment variable in scripts: `$HF_REPO_PUSH_TOKEN`
+- ❌ Never commit token to git
 - ❌ Never paste token in commit messages or comments
+
+**Why This Token is Important:**
+- This is a **Hugging Face Hub write token** with `repo_push` permissions
+- Allows automated deployment to HF Spaces without manual intervention
+- GitHub Actions (Step 14) uses this token via `${{ secrets.HF_REPO_PUSH_TOKEN }}`
+- Essential for automated CI/CD pipeline to work
 
 #### **What Happens After Push:**
 
@@ -1154,4 +1213,366 @@ echo $HF_TOKEN
 
 # Ensure sufficient disk space (for temporary files)
 df -h
+```
+# 🚀 Deployment & Workflow Guide
+
+## Overview
+This section explains how the SmolAgents AI Assistant is deployed to **Hugging Face Spaces** with **automated CI/CD**. The application automatically deploys when code changes are pushed to the `feature/hugging-face-spaces` branch.
+
+## Deployment Architecture
+
+```
+Local Development
+        ↓ (git push)
+GitHub Repository (feature/hugging-face-spaces)
+        ↓ (GitHub Actions CI/CD Pipeline)
+13 Automated Checks (Lint, Security, Syntax, Docker Build, etc.)
+        ↓ (if all checks pass)
+Step 14: Automatic Deployment to HF Spaces
+        ↓
+HF Spaces Repository (https://huggingface.co/spaces/muk0644/smolagents-ai-assistant)
+        ↓ (auto-detected)
+Docker Container Rebuild & Restart
+        ↓
+Live Application Available
+```
+
+## How It Works: Step-by-Step
+
+### **1. Local Development**
+You develop and commit code locally:
+```bash
+# Make changes to your code
+git add .
+git commit -m "Add new feature"
+git push origin feature/hugging-face-spaces
+```
+
+### **2. GitHub Actions Triggers**
+When code reaches GitHub, GitHub Actions automatically:
+- ✅ **Step 1:** Set up Python 3.10 environment
+- ✅ **Step 2:** Run Flake8 linting (code quality)
+- ✅ **Step 3:** Run Bandit security scan
+- ✅ **Step 4:** Check for hardcoded secrets
+- ✅ **Step 5:** Validate project structure
+- ✅ **Step 6:** Check Python syntax
+- ✅ **Step 7:** Build Docker image (test)
+- ✅ **Steps 8-13:** Additional validation checks
+- 🚀 **Step 14:** Deploy to HF Spaces (if all checks pass)
+
+### **3. Step 14: Automatic HF Spaces Deployment**
+
+**What Step 14 Does:**
+```yaml
+- name: 🚀 Deploy to Hugging Face Spaces
+  if: github.ref == 'refs/heads/feature/hugging-face-spaces' && success()
+  env:
+    HF_REPO_TOKEN: ${{ secrets.HF_REPO_PUSH_TOKEN }}
+  run: |
+    git config user.email "github-actions[bot]@users.noreply.github.com"
+    git config user.name "GitHub Actions"
+    git remote add hf-spaces https://muk0644:${HF_REPO_TOKEN}@huggingface.co/spaces/muk0644/smolagents-ai-assistant.git || true
+    git fetch hf-spaces main || true
+    git push hf-spaces HEAD:main
+```
+
+**Step 14 Breakdown:**
+
+| Component | Purpose |
+|-----------|---------|
+| `if: github.ref == 'refs/heads/feature/hugging-face-spaces' && success()` | Only runs on `feature/hugging-face-spaces` branch AND only if all CI/CD checks pass |
+| `HF_REPO_TOKEN` | GitHub secret containing your HF write token for authentication |
+| `git config user.email` | Sets bot email for commit attribution |
+| `git config user.name` | Sets bot username for commit attribution |
+| `git remote add hf-spaces` | Adds HF Spaces repo as a remote (with `\|\| true` to avoid errors if already added) |
+| `git fetch hf-spaces main` | Fetches latest commits from HF Spaces (with `\|\| true` to allow first deploy) |
+| `git push hf-spaces HEAD:main` | **THE KEY STEP:** Pushes exact same commit to HF Spaces' main branch |
+
+### **4. HF Spaces Auto-Detects Update**
+When Step 14 pushes the commit:
+- 🔔 HF Spaces detects new commit on `main` branch
+- 📦 HF Spaces reads the `README.md` metadata (SDK type, port, etc.)
+- 🐳 HF Spaces triggers automatic Docker container rebuild
+- ✅ New container deployed with your latest code
+
+### **5. Application Goes Live**
+Your app is instantly available at:
+```
+https://huggingface.co/spaces/muk0644/smolagents-ai-assistant
+```
+
+## 🎯 The One Key Fact About Step 14
+
+**The same commit that's on GitHub is copied to HF Spaces:**
+- ✅ Identical commit hash (e.g., `a6b6e72`)
+- ✅ Same code, same metadata
+- ✅ No modifications or rebuilding of code
+- ✅ HF Spaces simply restarts the container with new code
+
+**Visual Flow:**
+```
+GitHub Commit: a6b6e72 (Your Code)
+         ↓ (Step 14 copies)
+HF Spaces Commit: a6b6e72 (Exact Same)
+         ↓ (HF Spaces auto-detects)
+Docker Rebuild with New Code
+         ↓
+App Restarted & Live
+```
+
+## 📋 Complete Deployment Workflow
+
+### **Scenario 1: Manual Deployment (Original Method - No Longer Needed)**
+
+Before Step 14, manual deployment required:
+```bash
+# 1. Develop locally
+git add .
+git commit -m "new feature"
+
+# 2. Push to GitHub
+git push origin feature/hugging-face-spaces
+
+# 3. Manually push to HF Spaces (annoying!)
+git push https://muk0644:HF_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+
+# 4. Wait for HF Spaces rebuild
+```
+
+**❌ Problem:** Required manual HF Spaces push every time  
+**❌ Problem:** Easy to forget  
+**❌ Problem:** Manual token management  
+
+### **Scenario 2: Automated Deployment (Current - Recommended)**
+
+With Step 14, deployment is automatic:
+```bash
+# 1. Develop locally
+git add .
+git commit -m "new feature"
+
+# 2. Push to GitHub (that's it!)
+git push origin feature/hugging-face-spaces
+
+# 3. GitHub Actions automatically:
+#    - Runs all CI/CD checks
+#    - If checks pass: Step 14 copies to HF Spaces
+#    - HF Spaces automatically restarts container
+#    - App is live
+```
+
+**✅ Advantage:** One command: `git push`  
+**✅ Advantage:** Fully automated, no manual steps  
+**✅ Advantage:** Guaranteed code quality (checks first)  
+**✅ Advantage:** Automatic failsafe (doesn't deploy if checks fail)  
+
+## 🔐 Setting Up Automated Deployment
+
+To enable Step 14 automation, you need one GitHub secret:
+
+### **1. Create HF Write Token (on Hugging Face)**
+```bash
+# Go to: https://huggingface.co/settings/tokens
+# Create new token with "write" permissions
+# Example token: hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+### **2. Add Secret to GitHub**
+```bash
+# Go to: GitHub Repo → Settings → Secrets and variables → Actions
+# Create new secret:
+# Name: HF_REPO_PUSH_TOKEN
+# Value: hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+### **3. That's It!**
+Once the secret is added, Step 14 automatically runs on every push to `feature/hugging-face-spaces`.
+
+## 📊 Complete GitHub Actions Pipeline (14 Steps)
+
+| Step | Name | Purpose | Time |
+|------|------|---------|------|
+| 1 | Checkout Code | Get latest code from repo | <1s |
+| 2 | Setup Python | Install Python 3.10 | ~5s |
+| 3 | Cache Pip | Speed up installs | ~2s |
+| 4 | Install Dependencies | pip install requirements | ~15s |
+| 5 | Lint with Flake8 | Check code quality | ~3s |
+| 6 | Security Scan (Bandit) | Check for vulnerabilities | ~4s |
+| 7 | Check Secrets | Detect hardcoded secrets | ~2s |
+| 8 | Validate Structure | Check project layout | ~1s |
+| 9 | Syntax Check | Validate Python syntax | ~2s |
+| 10 | Docker Build Test | Build container image | ~8s |
+| 11 | Docker Image Analysis | Check image size/efficiency | ~2s |
+| 12 | Dependency Audit | Verify dependency health | ~2s |
+| 13 | Summary | Generate report | ~1s |
+| 14 | Deploy to HF Spaces | **Push to HF Spaces** | ~3s |
+| | **Total** | **Full pipeline** | **~45 seconds** |
+
+## 🎬 Example Complete Workflow
+
+Here's what happens when you push code:
+
+```bash
+# 1. Local: Make a change
+echo "# New feature" >> README.md
+
+# 2. Local: Commit
+git add .
+git commit -m "Add new feature"
+
+# 3. Local: Push to GitHub (that's all you need to do!)
+git push origin feature/hugging-face-spaces
+
+# ⏳ GitHub Actions automatically:
+# - ✅ Step 1-13: Run all CI/CD checks (45 seconds)
+# - ✅ All checks pass
+# - 🚀 Step 14: Push exact commit to HF Spaces
+# - 🔔 HF Spaces detects new commit
+# - 📦 HF Spaces rebuilds Docker container
+# - ✨ Your app is live with changes!
+
+# 4. User can immediately:
+# - Visit: https://huggingface.co/spaces/muk0644/smolagents-ai-assistant
+# - See: New feature deployed
+# - Test: Updated functionality
+```
+
+## 🚨 If CI/CD Checks Fail
+
+If any check fails, Step 14 **WILL NOT RUN**:
+```bash
+# Example: Flake8 detects syntax error in Step 5
+# Result:
+# - ❌ Pipeline stops
+# - ❌ Step 14 does not execute
+# - ❌ Code NOT deployed to HF Spaces
+# - ✅ You get error message to fix
+
+# Fix and push again
+git add .
+git commit -m "Fix syntax error"
+git push origin feature/hugging-face-spaces
+# Now Step 14 runs if all checks pass
+```
+
+## 📱 Monitoring Deployment
+
+### **Check GitHub Actions Logs**
+1. Go to: GitHub Repo → Actions
+2. Select latest workflow run
+3. Click on workflow name
+4. View all 14 steps
+5. Check Step 14 logs for HF Spaces push result
+
+### **Check HF Spaces Update**
+1. Go to: https://huggingface.co/spaces/muk0644/smolagents-ai-assistant
+2. Look at "Files" section
+3. Check commit history
+4. See same commit hash as GitHub
+
+### **Verify Deployment Success**
+```bash
+# 1. Check commit appears on HF Spaces
+git log --oneline | head -1  # GitHub commit
+# Output: a6b6e72 Add new feature
+
+# 2. Check HF Spaces has same commit
+cd ../hf-spaces-smolagents  # if cloned locally
+git log --oneline | head -1
+# Output: a6b6e72 Add new feature
+```
+
+## 🐛 Troubleshooting Deployment
+
+### **Problem: Step 14 didn't run**
+**Possible Causes:**
+- ❌ Pushing to wrong branch (not `feature/hugging-face-spaces`)
+- ❌ One of Steps 1-13 failed
+- ❌ `HF_REPO_PUSH_TOKEN` secret not set
+
+**Solution:**
+```bash
+# 1. Verify branch
+git branch
+
+# 2. Check GitHub Actions logs for errors
+# Visit: GitHub Repo → Actions → Latest run
+
+# 3. Verify secret exists
+# GitHub → Settings → Secrets and variables → Actions → HF_REPO_PUSH_TOKEN
+```
+
+### **Problem: HF Spaces didn't update**
+**Possible Causes:**
+- ❌ Step 14 failed (check logs)
+- ❌ HF_TOKEN doesn't have write permissions
+- ❌ HF Spaces spaces URL changed
+
+**Solution:**
+```bash
+# 1. Verify secret token is correct
+# Test manual push (one time):
+git push https://username:HF_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+
+# 2. Check token has write permissions
+# Visit: https://huggingface.co/settings/tokens
+```
+
+### **Problem: Commit hash doesn't match on HF Spaces**
+**Possible Causes:**
+- ❌ Manual push interfered with Step 14
+- ❌ HF Spaces force-pushed different commit
+- ❌ Network issue during Step 14
+
+**Solution:**
+```bash
+# 1. Sync local with both repos
+git fetch origin
+git fetch hf-spaces main
+
+# 2. Verify latest commits match
+git log origin/feature/hugging-face-spaces --oneline | head -1
+git log hf-spaces/main --oneline | head -1
+
+# 3. If different, manually sync
+git push hf-spaces origin/feature/hugging-face-spaces:main
+```
+
+## 💡 Key Takeaways
+
+1. **One Push, Everything Works:** `git push origin feature/hugging-face-spaces` triggers full pipeline
+2. **Automatic Quality Control:** All checks run before deployment
+3. **Same Commit Everywhere:** Git ensures identical code on GitHub and HF Spaces
+4. **Zero Manual Steps:** Step 14 handles HF Spaces deployment automatically
+5. **Instant Live:** Container restart happens immediately after commit
+6. **Safety First:** Failed checks prevent broken code deployment
+
+## 🔄 Git Workflow Summary
+
+```bash
+# Complete workflow for deploying new feature:
+
+# 1. Create/checkout feature branch
+git checkout -b feature/my-new-feature
+
+# 2. Make changes
+nano app.py
+
+# 3. Commit locally
+git add .
+git commit -m "Add amazing feature"
+
+# 4. Push to feature/hugging-face-spaces
+git push origin feature/hugging-face-spaces
+
+# 5. GitHub Actions runs (automatic):
+#    - Runs 13 checks (syntax, security, etc.)
+#    - If all pass → Step 14 deploys to HF Spaces
+#    - HF Spaces auto-rebuilds
+#    - App is live!
+
+# 6. Verify deployment
+#    - Check GitHub Actions logs
+#    - Visit HF Spaces URL
+#    - Test app functionality
 ```
