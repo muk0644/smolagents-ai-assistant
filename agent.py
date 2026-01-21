@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 from smolagents import (
     CodeAgent, 
-    InferenceClientModel, 
+    InferenceClientModel,
+    LiteLLMModel,
     load_tool, 
     FinalAnswerTool,
     DuckDuckGoSearchTool, 
@@ -25,8 +26,17 @@ from tools import (
 
 load_dotenv()
 
-def initialize_agent():
-    """Initializes and returns the CodeAgent with all tools configured."""
+def initialize_agent(selected_model_id="qwen"):
+    """Initializes and returns the CodeAgent with all tools configured.
+    
+    Args:
+        selected_model_id (str): The model to use. Options:
+            - "qwen": Qwen2.5-Coder-32B-Instruct (HuggingFace)
+            - "gemini-2.5-flash": Google Gemini 2.5 Flash
+    
+    Returns:
+        CodeAgent: Configured agent with selected model
+    """
     
     # 1. Initialize Standard Tools
     final_answer = FinalAnswerTool()
@@ -48,12 +58,38 @@ def initialize_agent():
     weather_tool = WeatherInfoTool()
     hub_stats_tool = HubStatsTool()
 
-    # 3. Configure Model
-    model = InferenceClientModel(
-        model_id='Qwen/Qwen2.5-Coder-32B-Instruct',
-        max_tokens=2096,
-        temperature=0.5,
-    )
+    # 3. Configure Model based on selection
+    if selected_model_id == "qwen":
+        # Original Qwen implementation (HuggingFace)
+        model = InferenceClientModel(
+            model_id='Qwen/Qwen2.5-Coder-32B-Instruct',
+            max_tokens=2096,
+            temperature=0.5,
+        )
+    elif selected_model_id == "gemini-2.5-flash":
+        # Google Gemini 2.5 Flash
+        google_api_key = os.getenv("GOOGLE_API_KEY")
+        if not google_api_key:
+            raise ValueError(
+                "GOOGLE_API_KEY not found in environment variables. "
+                "Please add it to your .env file."
+            )
+        
+        try:
+            model = LiteLLMModel(
+                model_id="gemini/gemini-2.5-flash",
+                api_key=google_api_key,
+                max_tokens=2096,
+                temperature=0.5,
+            )
+        except Exception as e:
+            # Enable debug to see full error
+            import litellm
+            litellm._turn_on_debug()
+            print(f"❌ LiteLLM Error with Gemini 2.5 Flash: {str(e)}")
+            raise
+    else:
+        raise ValueError(f"Unknown model_id: {selected_model_id}")
 
     # 4. Collect All Tools
     all_tools = [

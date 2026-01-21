@@ -1,4 +1,4 @@
-smolagents
+smolagents[litellm]
 python-dotenv
 pytz
 pyyaml
@@ -10,3 +10,5 @@ requests
 duckduckgo-search
 google-search-results
 Pillow
+litellm>=1.61.0
+google-generativeai>=0.8.3

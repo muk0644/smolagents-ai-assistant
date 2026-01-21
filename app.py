@@ -247,8 +247,16 @@ else:
     user_data = load_user_data(user_file_path)
 
     if "agent" not in st.session_state:
-        st.session_state.agent = initialize_agent()
-        print(f"🤖 [DEBUG] Initialized new agent instance for {user_email}")
+        try:
+            # Get selected model ID from session state or use default
+            selected_model = st.session_state.get("selected_model_id", "qwen")
+            st.session_state.agent = initialize_agent(selected_model)
+            print(f"🤖 [DEBUG] Initialized new agent instance with {selected_model} for {user_email}")
+        except ValueError as e:
+            st.error(f"❌ {str(e)}")
+            st.info("💡 **For Gemini models:** Add `GOOGLE_API_KEY` to your `.env` file")
+            st.info("💡 **For Qwen model:** Ensure `HF_TOKEN` is set in your `.env` file")
+            st.stop()
 
     # Initialize or load global tool usage (shared across all sessions)
     if "global_tool_usage" not in st.session_state:
@@ -409,6 +417,35 @@ else:
 
     # 9. SIDEBAR - ULTRA-COMPACT CHATGPT/GEMINI STYLE
     with st.sidebar:
+        # === MODEL SELECTION ===
+        model_choice = st.selectbox(
+            "🤖 Select AI Model:",
+            [
+                "Qwen2.5-Coder-32B-Instruct",
+                "Gemini 2.5 Flash"
+            ],
+            index=0,
+            key="model_selector"
+        )
+        
+        # Map UI choice to model ID
+        model_mapping = {
+            "Qwen2.5-Coder-32B-Instruct": "qwen",
+            "Gemini 2.5 Flash": "gemini-2.5-flash"
+        }
+        selected_model_id = model_mapping[model_choice]
+        
+        # Store selected model in session state
+        if "selected_model_id" not in st.session_state:
+            st.session_state.selected_model_id = selected_model_id
+        elif st.session_state.selected_model_id != selected_model_id:
+            st.session_state.selected_model_id = selected_model_id
+            # Force reinitialize agent if model changed
+            if "agent" in st.session_state:
+                del st.session_state.agent
+        
+        st.markdown("<div style='border-top: 1px solid #ddd; margin: 0.5rem 0;'></div>", unsafe_allow_html=True)
+        
         # === TOP: LOGIN & CAPABILITIES (MINIMAL) ===
         st.markdown(f"<div style='font-size: 0.8rem; color: #666; margin: 0; padding: 0;'>✅ {user_email}</div>", unsafe_allow_html=True)
         
