@@ -409,6 +409,11 @@ smolagents-ai-assistant/
 | `VisitWebpageTool` | Extracts webpage content | URL analysis |
 | `WebSearchTool` | Generic web search | Flexible |
 
+### LangChain Integration Tools
+| Tool | Description | Usage |
+|------|--------------|------------|
+| `SerpAPI Search` | Advanced web search via LangChain | Luxury entertainment, events, recommendations |
+
 ### Custom Tools
 
 #### 1️⃣ **WeatherInfoTool** 🌤️
@@ -461,7 +466,18 @@ smolagents-ai-assistant/
 - Restaurant ratings
 - Top service with rating
 
-#### 7️⃣ **Text-to-Image Generation** 🎨
+#### 7️⃣ **LangChain SerpAPI Search Tool** 🔍
+```python
+# Usage by agent
+"Search for luxury entertainment ideas for a superhero-themed event"
+```
+- Advanced web search using SerpAPI integration via LangChain
+- Real-time search results with structured data
+- Requires: `SERPAPI_API_KEY` in `.env`
+- More powerful alternative to basic web search tools
+- Returns: Comprehensive search results with snippets and links
+
+#### 8️⃣ **Text-to-Image Generation** 🎨
 ```python
 # Usage by agent
 "Generate an image of a cyberpunk city"
@@ -675,6 +691,7 @@ class WeatherInfoTool(Tool):
 | | Google Generative AI | Gemini Model Hosting |
 | | OpenWeatherMap | Weather data |
 | | SerpAPI | Google Search |
+| **Integration** | langchain-community | LangChain tool integration |
 | **Language** | Python 3.8+ | Core Logic |
 | **Libraries** | pytz | Timezones |
 | | requests | HTTP Calls |
@@ -706,13 +723,14 @@ OPENWEATHERMAP_API_KEY=xxxxxxxxxxxxxxxxxxxxx
 - Go to API Keys
 - Free plan: 1,000 calls/day
 
-#### 3. SerpAPI Key (OPTIONAL for Google Search)
+#### 3. SerpAPI Key (OPTIONAL for Google Search & LangChain)
 ```env
 SERPAPI_API_KEY=xxxxxxxxxxxxxxxxxxxxx
 ```
 **How to obtain:**
 - Register at [SerpAPI](https://serpapi.com)
 - Free plan: 100 searches/month
+- **Used by:** Standard GoogleSearchTool + LangChain SerpAPI integration tool
 
 ---
 
