@@ -830,7 +830,279 @@ Agent:
 
 ---
 
-## 🐛 Troubleshooting
+## � Deployment & Workflow Guide
+
+### 📋 Overview: Complete Deployment Pipeline
+
+This project supports **two deployment scenarios**:
+
+1. **Manual: Local → HF Spaces** (for testing/development)
+2. **Automated: GitHub → HF Spaces via CI/CD** (recommended for production)
+
+---
+
+### **Scenario 1: Manual Deployment (Local to HF Spaces)**
+
+#### **When to use:**
+- Quick testing of changes
+- Development/debugging locally
+- Before pushing to GitHub
+
+#### **Step-by-Step Process:**
+
+```bash
+# Step 1: Make code changes locally
+# Edit any file (e.g., app.py, tools.py, requirements.txt)
+
+# Step 2: Test locally
+streamlit run app.py
+
+# Step 3: Commit to your feature branch
+git checkout feature/hugging-face-spaces
+git add .
+git commit -m "Your meaningful commit message"
+
+# Step 4: Push to HF Spaces hub
+git push https://muk0644:YOUR_REPO_PUSH_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+```
+
+#### **Authentication (HF Spaces):**
+
+**Token Type:** `repo_push` token (write-enabled)
+
+```bash
+# Get your token from:
+# https://huggingface.co/settings/tokens
+# Create token with "repo" scope for write access
+```
+
+**Security Best Practices:**
+- ✅ Store token in `.env` file locally (protected by `.gitignore`)
+- ✅ Never commit token to git
+- ✅ Use environment variable in scripts: `$REPO_PUSH_TOKEN`
+- ❌ Never paste token in commit messages or comments
+
+#### **What Happens After Push:**
+
+1. **Code reaches HF Spaces repo** (main branch)
+2. **Docker Container builds** (using your Dockerfile)
+   - Pulls Python 3.10-slim base image
+   - Installs system dependencies (build-essential)
+   - Installs Python packages from requirements.txt
+   - Copies your code (app.py, agent.py, tools.py)
+3. **Streamlit server starts** on port 8501
+4. **Your app is live!** 
+   - URL: `https://huggingface.co/spaces/muk0644/smolagents-ai-assistant`
+   - Takes ~2-5 minutes from push to live
+
+---
+
+### **Scenario 2: Automated Deployment (GitHub → HF Spaces via CI/CD)**
+
+#### **When to use:**
+- Production deployments
+- Automated testing before deployment
+- Synchronized GitHub and HF Spaces
+- Team collaboration
+
+#### **Complete Workflow:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ YOU: Edit code locally (app.py, tools.py, etc.)            │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ YOU: git push origin feature/hugging-face-spaces            │
+│ (Push to GitHub - NOT to HF Spaces)                         │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ GITHUB ACTIONS: CI/CD Pipeline Triggers                    │
+│ ✅ Checkout code                                             │
+│ ✅ Setup Python 3.10                                         │
+│ ✅ Lint with flake8 (code quality)                          │
+│ ✅ Security scan with bandit                                │
+│ ✅ Check dependencies (safety)                              │
+│ ✅ Validate secrets/environment                             │
+│ ✅ Verify Python syntax                                     │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                ┌────────┴────────┐
+                │                 │
+             ✅ PASS          ❌ FAIL
+                │                 │
+                ▼                 ▼
+        ┌──────────────┐   ┌──────────────┐
+        │ CICD SUCCESS │   │ BUILD FAILED │
+        └──────┬───────┘   └──────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ GITHUB ACTIONS: Deploy to HF Spaces                        │
+│ (Automatic - NO additional push needed!)                   │
+│                                                             │
+│ Command executed by GitHub Actions:                        │
+│ git push https://USER:HF_REPO_TOKEN@huggingface.co/...     │
+│                                                             │
+│ ✅ Your code automatically syncs to HF Spaces main branch  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ HF SPACES: Docker Build & Deployment                       │
+│ ✅ Docker container builds (2-5 minutes)                    │
+│ ✅ Python packages installed                                │
+│ ✅ Your app is LIVE! 🚀                                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### **Step-by-Step Process:**
+
+```bash
+# Step 1: Make code changes
+# Edit any file (app.py, tools.py, requirements.txt, etc.)
+
+# Step 2: Test locally (optional but recommended)
+streamlit run app.py
+
+# Step 3: Commit to feature branch
+git add .
+git commit -m "Add new feature: weather alerts"
+
+# Step 4: Push to GITHUB (NOT HF Spaces!)
+git push origin feature/hugging-face-spaces
+
+# Step 5: Wait for GitHub Actions to complete
+# Check status at: https://github.com/muk0644/smolagents-ai-assistant/actions
+
+# Step 6: GitHub Actions automatically updates HF Spaces
+# NO additional push needed!
+
+# Step 7: Check deployment
+# Open: https://huggingface.co/spaces/muk0644/smolagents-ai-assistant
+```
+
+#### **How CI/CD Triggers HF Spaces Deployment:**
+
+```yaml
+# This is configured in .github/workflows/ci-cd.yml
+# The workflow includes a deployment step that runs:
+
+- name: Deploy to Hugging Face Spaces
+  if: success()  # Only if all checks pass
+  run: |
+    git push https://muk0644:${{ secrets.HF_REPO_PUSH_TOKEN }}@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+```
+
+---
+
+### **Container Build Process (HF Spaces)**
+
+#### **What happens when you push:**
+
+1. **Docker reads your Dockerfile**
+   ```dockerfile
+   FROM python:3.10-slim
+   WORKDIR /app
+   RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
+   COPY requirements.txt .
+   RUN pip install --no-cache-dir -r requirements.txt
+   COPY . .
+   EXPOSE 8501
+   CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+   ```
+
+2. **Build stages:**
+   - ✅ **Stage 1:** Pull Python 3.10-slim image (300MB base)
+   - ✅ **Stage 2:** Install system packages (build tools)
+   - ✅ **Stage 3:** Copy requirements.txt
+   - ✅ **Stage 4:** Install Python packages (smolagents, streamlit, etc.)
+   - ✅ **Stage 5:** Copy your code
+   - ✅ **Stage 6:** Expose port 8501
+   - ✅ **Stage 7:** Start Streamlit server
+
+3. **Container runtime:**
+   - App runs as Docker container
+   - Streamlit server listens on 0.0.0.0:8501
+   - HF Spaces proxy routes traffic to your container
+   - App is accessible via HTTPS
+
+#### **Build Time:**
+- **First build:** 3-5 minutes
+- **Subsequent builds:** 1-2 minutes (cached layers)
+
+#### **Environment Variables:**
+HF Spaces automatically provides:
+- `STREAMLIT_SERVER_PORT=8501`
+- Your custom secrets (HF_TOKEN, SERPAPI_API_KEY, etc.)
+
+---
+
+### **Token Requirements & Security**
+
+| Token | Purpose | Scope | Required |
+|-------|---------|-------|----------|
+| `HF_TOKEN` | Hugging Face API access (models, inference) | Read | ✅ Yes |
+| `REPO_PUSH_TOKEN` | Write access to HF Spaces repo | Write | ✅ Yes (for deployment) |
+| `SERPAPI_API_KEY` | Google Search integration | Search | ⚠️ Optional |
+| `OPENWEATHERMAP_API_KEY` | Weather data | Weather | ⚠️ Optional |
+
+#### **Setting up GitHub Actions Secrets:**
+
+```bash
+# For automated CI/CD → HF Spaces deployment:
+# 1. Go to GitHub repo Settings → Secrets and variables → Actions
+# 2. Add these secrets:
+#    - HF_REPO_PUSH_TOKEN = your_repo_push_token
+#    - HF_TOKEN = your_huggingface_token
+#    - SERPAPI_API_KEY = your_serpapi_key
+#    - OPENWEATHERMAP_API_KEY = your_weather_key
+```
+
+---
+
+### **Troubleshooting Deployment**
+
+#### **Container won't start:**
+```bash
+# Check Dockerfile syntax
+docker build -t test-image .
+
+# Check requirements.txt for conflicts
+pip install -r requirements.txt
+
+# Review logs at HF Spaces
+# https://huggingface.co/spaces/muk0644/smolagents-ai-assistant/logs
+```
+
+#### **Push fails with authentication error:**
+```bash
+# Verify token is correct
+# Ensure token has "write" scope (repo_push)
+# Check token hasn't expired
+
+# Test authentication
+git clone https://muk0644:YOUR_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant test-repo
+```
+
+#### **CI/CD pipeline fails:**
+```bash
+# Check GitHub Actions logs
+# https://github.com/muk0644/smolagents-ai-assistant/actions
+
+# Common issues:
+# - Linting errors (flake8)
+# - Security issues (bandit)
+# - Missing dependencies
+# - Invalid Python syntax
+```
+
+---
+
+## �🐛 Troubleshooting
 
 ### Problem: "HF_TOKEN not found"
 **Solution:**
