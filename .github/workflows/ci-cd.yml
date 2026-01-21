@@ -2,9 +2,9 @@ name: CI/CD Pipeline for SmolAgents AI Assistant
 
 on:
   push:
-    branches: [ feature/cicd-workflow2 ]
+    branches: [ cicd-workflow2 ]
   pull_request:
-    branches: [ feature/cicd-workflow2 ]
+    branches: [ cicd-workflow2 ]
 
 jobs:
   build-and-test:
