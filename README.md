@@ -48,7 +48,11 @@
 
 ## 🎯 About the Project
 
-This project is a **fully functional AI agent** built with the **smolagents** library from Hugging Face. The agent uses the powerful **Qwen2.5-Coder-32B-Instruct** model and provides a user-friendly **Streamlit** interface.
+This project is a **fully functional AI agent** built with the **smolagents** library from Hugging Face. The agent supports **dual AI models** via an easy-to-use dropdown selector:
+- **Qwen2.5-Coder-32B-Instruct** (HuggingFace - Free)
+- **Gemini 2.5 Flash** (Google - Free with API key)
+
+It provides a user-friendly **Streamlit** interface with multi-model support.
 
 ### 🚀 Live Deployment
 The application is **now deployed and live** on Streamlit Cloud:  
@@ -460,10 +464,11 @@ smolagents-ai-assistant/
 
 ### `agent.py` - Agent Initialization
 ```python
-def initialize_agent():
+def initialize_agent(selected_model_id="qwen"):
     """
     Creates and configures the CodeAgent with:
-    - Qwen2.5-Coder-32B-Instruct Model
+    - Qwen2.5-Coder-32B-Instruct (HuggingFace)
+    - OR Gemini 2.5 Flash (Google)
     - All standard and custom tools
     - max_steps=10 for complex tasks
     - verbosity_level=1 for debugging
@@ -471,9 +476,10 @@ def initialize_agent():
 ```
 
 **Key Features:**
-- Modular tool integration
-- Caching for better performance
-- Flexible model configuration
+- Multi-model support (Qwen + Gemini)
+- Model selector dropdown in sidebar
+- Dynamic model switching
+- Error handling for missing API keys
 
 ### `app.py` - Streamlit Frontend (Production-Ready UI)
 
@@ -501,6 +507,7 @@ def initialize_agent():
 
 **Sidebar Components:**
 - ✅ **User Status**: Display logged-in email (0.8rem, subtle)
+- 🤖 **Model Selector**: Choose between Qwen or Gemini 2.5 Flash
 - 🔢 **Global Tool Counter**: `{usage}/{MAX_TOOL_LIMIT}` with color indicator
 - ⏰ **Timer**: Minutes remaining until auto-reset
 - ➕ **New Chat Button**: Primary action (full width)
@@ -650,14 +657,17 @@ class WeatherInfoTool(Tool):
 |-----------|-------------|--------|
 | **Framework** | smolagents | Agent Orchestration |
 | **Frontend** | Streamlit | Web UI |
-| **LLM** | Qwen2.5-Coder-32B-Instruct | Inference Engine |
-| **APIs** | Hugging Face Inference | Model Hosting |
+| **LLM** | Qwen2.5-Coder-32B-Instruct | Inference Engine (Free) |
+| | Gemini 2.5 Flash | Alternative AI Model (Free) |
+| **APIs** | Hugging Face Inference | Qwen Model Hosting |
+| | Google Generative AI | Gemini Model Hosting |
 | | OpenWeatherMap | Weather data |
 | | SerpAPI | Google Search |
 | **Language** | Python 3.8+ | Core Logic |
 | **Libraries** | pytz | Timezones |
 | | requests | HTTP Calls |
 | | huggingface_hub | Hub Integration |
+| | litellm | LLM Routing |
 | | Pillow | Image processing |
 
 ---
