@@ -6,6 +6,9 @@ import requests
 from smolagents import tool, Tool
 from huggingface_hub import list_models
 
+# LangChain imports will be done dynamically in the function to avoid import errors
+# if langchain-community is not installed yet
+
 # --- Function-Based Tools ---
 
 @tool
@@ -117,3 +120,31 @@ class HubStatsTool(Tool):
             return f"No models found for: {author}"
         except Exception as e:
             return f"API Error: {str(e)}"
+
+# --- LangChain Integration: SerpAPI Tool ---
+
+def create_serpapi_langchain_tool():
+    """Creates a SerpAPI search tool from LangChain integration.
+    
+    Note: Requires SERPAPI_API_KEY to be set in environment variables (.env file).
+    The key is automatically loaded from .env by python-dotenv.
+    
+    Returns:
+        Tool: SerpAPI tool wrapped for smolagents compatibility
+    """
+    try:
+        # Dynamic import to avoid errors if langchain-community not installed
+        from langchain.agents import load_tools  # type: ignore
+        
+        # Load SerpAPI tool from LangChain (requires SERPAPI_API_KEY in environment)
+        langchain_tools = load_tools(["serpapi"])
+        serpapi_tool = Tool.from_langchain(langchain_tools[0])
+        return serpapi_tool
+    except ImportError as ie:
+        print(f"⚠️ Warning: langchain-community not installed: {str(ie)}")
+        print("Run: pip install langchain-community")
+        return None
+    except Exception as e:
+        print(f"⚠️ Warning: Could not load SerpAPI LangChain tool: {str(e)}")
+        print("Make sure SERPAPI_API_KEY is set in your .env file")
+        return None

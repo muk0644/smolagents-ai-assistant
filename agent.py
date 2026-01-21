@@ -21,7 +21,8 @@ from tools import (
     catering_service_tool, 
     SuperheroPartyThemeTool, 
     WeatherInfoTool, 
-    HubStatsTool
+    HubStatsTool,
+    create_serpapi_langchain_tool
 )
 
 load_dotenv()
@@ -57,6 +58,9 @@ def initialize_agent(selected_model_id="qwen"):
     superhero_tool = SuperheroPartyThemeTool()
     weather_tool = WeatherInfoTool()
     hub_stats_tool = HubStatsTool()
+    
+    # Initialize LangChain SerpAPI tool (if available)
+    serpapi_langchain_tool = create_serpapi_langchain_tool()
 
     # 3. Configure Model based on selection
     if selected_model_id == "qwen":
@@ -108,6 +112,10 @@ def initialize_agent(selected_model_id="qwen"):
         web_search_tool, 
         google_search_tool
     ]
+    
+    # Add LangChain SerpAPI tool if successfully loaded
+    if serpapi_langchain_tool is not None:
+        all_tools.append(serpapi_langchain_tool)
 
     # 5. Create Agent
     agent = CodeAgent(
