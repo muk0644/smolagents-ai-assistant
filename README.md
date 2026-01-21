@@ -956,9 +956,42 @@ git push https://muk0644:YOUR_REPO_PUSH_TOKEN@huggingface.co/spaces/muk0644/smol
 
 ---
 
-### **Scenario 2: Automated Deployment (GitHub → HF Spaces via CI/CD)**
+#### **🚀 Quick Manual Push Command Reference**
 
-#### **When to use:**
+If you don't want to use GitHub CI/CD and want to push directly to HF Spaces manually:
+
+```bash
+# Method 1: Using HF_REPO_PUSH_TOKEN from .env
+git push https://muk0644:$HF_REPO_PUSH_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+
+# Method 2: Using your actual token directly (one-time)
+git push https://muk0644:hf_xxxxxxxxxxxxxxxxxxxxx@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+
+# Method 3: If you've already added HF Spaces as remote
+git remote add hf-spaces https://muk0644:$HF_REPO_PUSH_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant.git
+git push hf-spaces feature/hugging-face-spaces:main
+```
+
+**Breaking Down the Command:**
+- `git push` - Push command
+- `https://muk0644:` - HF Spaces URL with username
+- `$HF_REPO_PUSH_TOKEN` - Your HF write token (from `.env` file)
+- `@huggingface.co/spaces/muk0644/smolagents-ai-assistant` - HF Spaces repository
+- `feature/hugging-face-spaces:main` - Push local branch to HF Spaces main branch
+
+**Example with real values:**
+```bash
+# Your .env file contains:
+HF_REPO_PUSH_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Then run:
+git push https://muk0644:hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+
+# Or use environment variable (cleaner):
+git push https://muk0644:${HF_REPO_PUSH_TOKEN}@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+```
+
+---#### **When to use:**
 - Production deployments
 - Automated testing before deployment
 - Synchronized GitHub and HF Spaces
@@ -1321,6 +1354,105 @@ App Restarted & Live
 ```
 
 ## 📋 Complete Deployment Workflow
+
+### **Side-by-Side Comparison: Manual vs Automated Deployment**
+
+| Step | Manual (You Do) | Automated CI/CD (GitHub Does) |
+|------|-----------------|-------------------------------|
+| 1 | Edit code locally | ✅ Automatically triggered on `git push` |
+| 2 | Run `git add .` | ✅ GitHub Actions checks out code |
+| 3 | Run `git commit` | ✅ Runs Flake8 linting |
+| 4 | Run `git push origin ...` | ✅ Runs Bandit security scan |
+| 5 | **MANUALLY** run HF Spaces push | ❌ Stops if checks fail (safe!) |
+| 6 | Wait for HF Spaces rebuild | ✅ Step 14: Automatically pushes to HF Spaces |
+| 7 | App is live | ✅ HF Spaces auto-rebuilds & restarts |
+| | | ✅ App is live |
+
+---
+
+### **Scenario 1: Manual Deployment (You Push to HF Spaces Yourself)**
+
+**When to use:** Quick testing, development, or if you don't want CI/CD
+
+**What YOU do:**
+```bash
+# 1. Develop locally
+git add .
+git commit -m "new feature"
+
+# 2. Push to GitHub
+git push origin feature/hugging-face-spaces
+
+# 3. YOU manually push to HF Spaces (you must do this yourself!)
+git push https://muk0644:$HF_REPO_PUSH_TOKEN@huggingface.co/spaces/muk0644/smolagents-ai-assistant feature/hugging-face-spaces:main
+
+# 4. Wait for HF Spaces rebuild (2-5 minutes)
+```
+
+**❌ Problems:** 
+- Requires manual HF Spaces push every time
+- Easy to forget
+- Manual token management
+- No code quality checks before deploy
+- Bad code can go live
+
+---
+
+### **Scenario 2: Automated Deployment (CI/CD Does Everything)**
+
+**When to use:** Production, team projects, always recommended
+
+**What YOU do:**
+```bash
+# 1. Develop locally
+git add .
+git commit -m "new feature"
+
+# 2. Push to GitHub (THAT'S IT!)
+git push origin feature/hugging-face-spaces
+```
+
+**What GitHub Actions CI/CD does automatically:**
+```bash
+# Step 1: Checkout your code
+✅ git clone your repo
+
+# Steps 2-7: Run quality checks
+✅ Flake8 linting (code quality)
+✅ Bandit security scan
+✅ Secret detection
+✅ Project structure validation
+✅ Python syntax check
+✅ Docker build test
+
+# Step 8-13: Additional validation
+✅ Docker image analysis
+✅ Dependency audit
+✅ Generate report
+
+# Step 14 (IF all checks pass):
+✅ Authenticate with HF Spaces
+✅ Push your exact commit to HF Spaces
+✅ HF Spaces auto-detects commit
+✅ HF Spaces rebuilds Docker container
+✅ App is live
+
+# If any check FAILS:
+❌ Pipeline stops
+❌ Code NOT deployed (safe!)
+❌ You get error message to fix
+```
+
+**✅ Advantages:**
+- One command: `git push` (that's all you need!)
+- Automatic quality control
+- Guaranteed code quality before deploy
+- Automatic failsafe (bad code won't deploy)
+- Saves you from manual mistakes
+- Professional deployment process
+- Both GitHub and HF Spaces stay in sync
+
+---
 
 ### **Scenario 1: Manual Deployment (Original Method - No Longer Needed)**
 
