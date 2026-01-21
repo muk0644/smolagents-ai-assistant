@@ -48,7 +48,13 @@
 
 ## 🎯 About the Project
 
-This project is a **fully functional, tool-augmented AI agent** built with the **smolagents** library from Hugging Face. It features **dual LLM models** via an easy-to-use dropdown selector and is deployed across **dual cloud platforms** with an enterprise-grade **LLMOps pipeline**.
+This project is a **fully functional Agentic RAG (Retrieval Augmented Generation) system** combining **smolagents** orchestration with **LangChain** semantic search capabilities. It features **dual LLM models** via an easy-to-use dropdown selector and is deployed across **dual cloud platforms** with an enterprise-grade **LLMOps pipeline**.
+
+**Core Technologies:**
+- **Agent Framework**: smolagents (Hugging Face)
+- **Retrieval Engine**: LangChain (SerpAPI + Custom Knowledge Base RAG)
+- **Semantic Search**: BM25 algorithm with document chunking
+- **LLM Models**: Qwen2.5-Coder-32B-Instruct + Gemini 2.5 Flash
 
 **Supported Models:**
 - **Qwen2.5-Coder-32B-Instruct** (HuggingFace - Free)
@@ -70,11 +76,12 @@ The application is deployed on two platforms, optimized for different use cases:
 - Continuous testing, validation, and real-time deployment
 
 The agent can:
-- 🌐 **Perform web research** (DuckDuckGo, Google)
+- 🌐 **Perform web research** (DuckDuckGo, Google, LangChain SerpAPI)
+- 📚 **Query knowledge base** (Semantic search with RAG retrieval)
 - 🌤️ **Retrieve real-time weather data**
 - 🎨 **Generate images** (Text-to-Image)
 - 🧮 **Execute Python code** for mathematical calculations
-- 🎉 **Generate party plans** and event ideas
+- 🎉 **Generate party plans** (Specialized party planning with retrieved ideas)
 - 📊 **Retrieve Hugging Face Hub statistics**
 - ⏰ **Provide timezone information**
 
@@ -397,6 +404,36 @@ smolagents-ai-assistant/
 
 ---
 
+## 🤖 Agentic RAG Architecture
+
+This project implements an **advanced Retrieval Augmented Generation (RAG)** system that enhances LLM reasoning with dynamic information retrieval:
+
+### RAG Components:
+
+**1. Retrieval Layer** (Multiple Sources)
+- **Web Search**: DuckDuckGo, Google, LangChain SerpAPI
+- **Knowledge Base**: Semantic search via BM25 algorithm
+- **Webpage Content**: VisitWebpageTool for detailed information extraction
+
+**2. Augmentation Layer** (Context Enhancement)
+- Retrieved documents automatically injected into LLM context
+- Agent synthesizes retrieved information with reasoning
+- Multi-step retrieval for complex queries
+
+**3. Generation Layer** (LLM Response)
+- Qwen2.5-Coder or Gemini 2.5 Flash generates answer
+- Uses retrieved context for factual accuracy
+- Maintains conversation history for coherence
+
+### Benefits:
+✅ **Accurate Responses**: Grounded in actual data
+✅ **Current Information**: Web search for latest trends
+✅ **Specialized Knowledge**: Custom knowledge base for domain expertise
+✅ **Flexible Sources**: Can combine multiple retrieval methods
+✅ **Verifiable**: Responses traceable to source documents
+
+---
+
 ## 🛠️ Available Tools
 
 ### Standard Tools (smolagents)
@@ -413,6 +450,7 @@ smolagents-ai-assistant/
 | Tool | Description | Usage |
 |------|--------------|------------|
 | `SerpAPI Search` | Advanced web search via LangChain | Luxury entertainment, events, recommendations |
+| `Party Planning Retriever` | Semantic search knowledge base (BM25) | Party ideas, themes, catering, entertainment |
 
 ### Custom Tools
 
@@ -477,7 +515,19 @@ smolagents-ai-assistant/
 - More powerful alternative to basic web search tools
 - Returns: Comprehensive search results with snippets and links
 
-#### 8️⃣ **Text-to-Image Generation** 🎨
+#### 8️⃣ **Party Planning Knowledge Base Retriever** 📚
+```python
+# Usage by agent
+"Find luxury superhero party ideas with entertainment and catering"
+```
+- Semantic search through curated party planning knowledge base
+- Uses BM25 retrieval algorithm for relevant results
+- Returns top 5 most relevant suggestions
+- Covers: Entertainment, catering, decorations, venues, beverages
+- No external API needed - built-in knowledge base
+- Perfect for event planning queries
+
+#### 9️⃣ **Text-to-Image Generation** 🎨
 ```python
 # Usage by agent
 "Generate an image of a cyberpunk city"
@@ -692,6 +742,8 @@ class WeatherInfoTool(Tool):
 | | OpenWeatherMap | Weather data |
 | | SerpAPI | Google Search |
 | **Integration** | langchain-community | LangChain tool integration |
+| | langchain-text-splitters | Document chunking for retrieval |
+| | rank-bm25 | BM25 semantic search algorithm |
 | **Language** | Python 3.8+ | Core Logic |
 | **Libraries** | pytz | Timezones |
 | | requests | HTTP Calls |

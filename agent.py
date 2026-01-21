@@ -22,7 +22,8 @@ from tools import (
     SuperheroPartyThemeTool, 
     WeatherInfoTool, 
     HubStatsTool,
-    create_serpapi_langchain_tool
+    create_serpapi_langchain_tool,
+    PartyPlanningRetrieverTool
 )
 
 load_dotenv()
@@ -61,6 +62,9 @@ def initialize_agent(selected_model_id="qwen"):
     
     # Initialize LangChain SerpAPI tool (if available)
     serpapi_langchain_tool = create_serpapi_langchain_tool()
+    
+    # Initialize Party Planning Knowledge Base Retriever
+    party_retriever_tool = PartyPlanningRetrieverTool()
 
     # 3. Configure Model based on selection
     if selected_model_id == "qwen":
@@ -110,7 +114,8 @@ def initialize_agent(selected_model_id="qwen"):
         visit_webpage_tool, 
         duckduckgo_tool, 
         web_search_tool, 
-        google_search_tool
+        google_search_tool,
+        party_retriever_tool
     ]
     
     # Add LangChain SerpAPI tool if successfully loaded
