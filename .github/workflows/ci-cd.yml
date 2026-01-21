@@ -146,5 +146,6 @@ jobs:
         git config user.name "GitHub Actions"
         git remote add hf-spaces https://muk0644:${HF_REPO_TOKEN}@huggingface.co/spaces/muk0644/smolagents-ai-assistant.git || true
         git fetch hf-spaces main || true
-        git push hf-spaces HEAD:main
+        # Use --force to override diverged history (GitHub is source of truth)
+        git push hf-spaces HEAD:main --force
         echo "✅ Successfully deployed to Hugging Face Spaces!"
