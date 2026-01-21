@@ -538,7 +538,9 @@ else:
 
     * **🌤️ REAL WEATHER**: 'Weather in Erkner right now'
     * **🔍 WEB SEARCH**: 'Who is the CEO of Hugging Face?'
-    * **🔎 ADVANCED SEARCH**: 'Search for luxury entertainment ideas for a superhero-themed event'    * **📚 PARTY KNOWLEDGE BASE**: 'Find luxury superhero party ideas with entertainment and catering' (Semantic Search)    * **🎨 IMAGE GEN**: 'Generate an image of a cyberpunk city'
+    * **🔎 ADVANCED SEARCH**: 'Search for luxury entertainment ideas for a superhero-themed event'
+    * **📚 PARTY KNOWLEDGE BASE**: 'Find luxury superhero party ideas with entertainment and catering' (Semantic Search)
+    * **🎨 IMAGE GEN**: 'Generate an image of a cyberpunk city'
     * **🧮 MATH & PYTHON**: 'Calculate sqrt(123456789) * pi'
     * **🎉 PARTY & EVENTS**: 'Plan a superhero party for Batman'
     """)
