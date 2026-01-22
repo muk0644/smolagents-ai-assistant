@@ -119,7 +119,7 @@ jobs:
         GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
       run: |
-        python -c "import ast; [ast.parse(open(f).read()) for f in ['app.py', 'agent.py', 'tools.py']]"
+        python -c "import ast; [ast.parse(open(f).read()) for f in ['app.py', 'agent.py', 'tools.py', 'retrieval.py']]"
         echo "✅ Python syntax validation passed"
     
     # Step 12: Final deployment readiness message

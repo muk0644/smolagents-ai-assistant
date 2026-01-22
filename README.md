@@ -149,6 +149,7 @@ Required Files Checked:
 ✅ app.py - Streamlit frontend
 ✅ agent.py - AI agent configuration
 ✅ tools.py - Custom tool implementations
+✅ retrieval.py - RAG/Retrieval module (Party Planning KB)
 ✅ requirements.txt - Python dependencies
 ✅ README.md - Project documentation
 ```
@@ -388,6 +389,7 @@ smolagents-ai-assistant/
 ├── app.py                  # Streamlit Frontend (Multi-session UI)
 ├── agent.py               # Agent configuration & initialization
 ├── tools.py               # Custom tool definitions
+├── retrieval.py           # RAG/Retrieval module (Party Planning KB)
 ├── requirements.txt       # Python dependencies
 │
 ├── README.md             # Complete documentation

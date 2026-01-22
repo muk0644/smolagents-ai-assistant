@@ -22,9 +22,11 @@ from tools import (
     SuperheroPartyThemeTool, 
     WeatherInfoTool, 
     HubStatsTool,
-    create_serpapi_langchain_tool,
-    PartyPlanningRetrieverTool
+    create_serpapi_langchain_tool
 )
+
+# Import RAG/retrieval tools from dedicated module
+from retrieval import PartyPlanningRetrieverTool
 
 load_dotenv()
 
