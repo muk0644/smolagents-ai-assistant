@@ -439,6 +439,95 @@ This project implements an **advanced Retrieval Augmented Generation (RAG)** sys
 
 ---
 
+## 📚 Knowledge Retrieval System: Two Types of RAG Tools
+
+This project features **two complementary RAG approaches** for different use cases:
+
+### **Type 1: Static Knowledge Base (PartyPlanningRetrieverTool)**
+
+**Purpose**: Fast, offline access to curated domain knowledge
+
+- **Source**: Built-in JSON data embedded in `retrieval.py`
+- **Data**: 10 curated party planning ideas for superhero-themed events
+- **Algorithm**: BM25 (probabilistic relevance ranking)
+- **Retrieval**: Top 5 most relevant suggestions
+- **Use Case**: Party planning queries, entertainment ideas, catering suggestions
+- **Advantages**: 
+  - ⚡ No internet required
+  - 🔐 No external API dependencies
+  - 🚀 Instant retrieval
+  - 📦 Self-contained knowledge base
+
+**Example Query**:
+```
+"Find luxury superhero party ideas with entertainment and catering"
+```
+
+---
+
+### **Type 2: External Dataset Integration (GuestInfoRetrieverTool)**
+
+**Purpose**: Dynamic access to external datasets from Hugging Face Hub
+
+- **Source**: HuggingFace dataset `agents-course/unit3-invitees` (split="train")
+- **Data Structure**: Guest information with 4 fields per record
+- **Algorithm**: BM25 (semantic search by name or relation)
+- **Retrieval**: Top 3 most relevant guests
+- **Use Case**: Guest management, contact information, party invitations
+
+**Dataset Fields**:
+```yaml
+Name: String (Guest's full name)
+  - Example: "Ada Lovelace", "Dr. Nikola Tesla", "Marie Curie"
+
+Relation: String (How the guest is related to the host)
+  - Examples: "best friend", "old friend from university days", "no relation"
+
+Description: String (Biography or interesting facts about the guest)
+  - Example: "Lady Ada Lovelace is my best friend. She is an esteemed 
+    mathematician and friend. She is renowned for her pioneering work 
+    in mathematics and computing..."
+
+Email: String (Contact information)
+  - Example: "ada.lovelace@example.com"
+```
+
+**Dataset Sample**:
+| Name | Relation | Description | Email |
+|------|----------|-------------|-------|
+| Ada Lovelace | best friend | Esteemed mathematician, pioneering work on Analytical Engine | ada.lovelace@example.com |
+| Dr. Nikola Tesla | old friend from university days | Recently patented wireless energy transmission system, passionate about pigeons | nikola.tesla@gmail.com |
+| Marie Curie | no relation | Groundbreaking physicist & chemist, famous for radioactivity research | marie.curie@example.com |
+
+**Advantages**:
+- 🌐 Dynamic external data
+- 📊 Real-world datasets from HuggingFace Hub
+- 🔄 Automatically downloads on first use
+- 🎯 Semantic search by name or relation
+- 💾 Scalable to larger datasets
+
+**Example Queries**:
+```
+"Who is Ada Lovelace and how do I contact her?"
+"Tell me about my old friend from university days"
+"Find all best friends in my guest list"
+```
+
+---
+
+### **Architecture Comparison**
+
+| Feature | Static KB | External Dataset |
+|---------|-----------|------------------|
+| **Source** | Embedded JSON | HuggingFace Hub |
+| **Real-time Updates** | ❌ No | ✅ Yes |
+| **Dependencies** | ✅ None | Requires datasets library |
+| **Latency** | ⚡ Very Fast | 🌐 Network dependent |
+| **Scalability** | 📦 Limited | 📊 Unlimited |
+| **Use Case** | Domain expertise | Data management |
+
+---
+
 ## 🛠️ Available Tools
 
 ### Standard Tools (smolagents)
@@ -456,6 +545,7 @@ This project implements an **advanced Retrieval Augmented Generation (RAG)** sys
 |------|--------------|------------|
 | `SerpAPI Search` | Advanced web search via LangChain | Luxury entertainment, events, recommendations |
 | `Party Planning Retriever` | Semantic search knowledge base (BM25) | Party ideas, themes, catering, entertainment |
+| `Guest Info Retriever` | Guest database from HuggingFace dataset | Guest information, relations, contact details |
 
 ### Custom Tools
 
@@ -532,7 +622,20 @@ This project implements an **advanced Retrieval Augmented Generation (RAG)** sys
 - No external API needed - built-in knowledge base
 - Perfect for event planning queries
 
-#### 9️⃣ **Text-to-Image Generation** 🎨
+#### 9️⃣ **Guest Information Retriever** 👥
+```python
+# Usage by agent
+"Who is Ada Lovelace and how do I contact her?"
+"Tell me about my old friend from university days"
+```
+- Retrieves guest information from HuggingFace dataset (`agents-course/unit3-invitees`)
+- Uses BM25 retrieval for semantic search by name or relation
+- Returns: Name, relation to host, biography, email address
+- Automatically downloads dataset on first use
+- Returns top 3 most relevant matches
+- Perfect for party guest management and invitations
+
+#### 🔟 **Text-to-Image Generation** 🎨
 ```python
 # Usage by agent
 "Generate an image of a cyberpunk city"

@@ -540,6 +540,7 @@ else:
     * **🔍 WEB SEARCH**: 'Who is the CEO of Hugging Face?'
     * **🔎 ADVANCED SEARCH**: 'Search for luxury entertainment ideas for a superhero-themed event'
     * **📚 PARTY KNOWLEDGE BASE**: 'Find luxury superhero party ideas with entertainment and catering' (Semantic Search)
+    * **👥 GUEST INFORMATION**: 'Who is Ada Lovelace and how do I contact her?' (Guest Database)
     * **🎨 IMAGE GEN**: 'Generate an image of a cyberpunk city'
     * **🧮 MATH & PYTHON**: 'Calculate sqrt(123456789) * pi'
     * **🎉 PARTY & EVENTS**: 'Plan a superhero party for Batman'

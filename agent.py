@@ -26,7 +26,7 @@ from tools import (
 )
 
 # Import RAG/retrieval tools from dedicated module
-from retrieval import PartyPlanningRetrieverTool
+from retrieval import PartyPlanningRetrieverTool, GuestInfoRetrieverTool
 
 load_dotenv()
 
@@ -65,8 +65,9 @@ def initialize_agent(selected_model_id="qwen"):
     # Initialize LangChain SerpAPI tool (if available)
     serpapi_langchain_tool = create_serpapi_langchain_tool()
     
-    # Initialize Party Planning Knowledge Base Retriever
+    # Initialize RAG Knowledge Base Retrievers
     party_retriever_tool = PartyPlanningRetrieverTool()
+    guest_info_tool = GuestInfoRetrieverTool()
 
     # 3. Configure Model based on selection
     if selected_model_id == "qwen":
@@ -117,7 +118,8 @@ def initialize_agent(selected_model_id="qwen"):
         duckduckgo_tool, 
         web_search_tool, 
         google_search_tool,
-        party_retriever_tool
+        party_retriever_tool,
+        guest_info_tool
     ]
     
     # Add LangChain SerpAPI tool if successfully loaded
