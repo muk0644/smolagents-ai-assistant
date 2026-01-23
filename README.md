@@ -4,11 +4,11 @@
 
 ![SmolAgents Logo](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/smolagents/smolagents.png)
 
-[![Deploy](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/)
+[![Deploy](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant-up.streamlit.app/)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions)](https://github.com/muk0644/smolagents-ai-assistant/actions)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/muk0644/smolagents-ai-assistant/ci-cd.yml?branch=feature/cicd-workflow&style=for-the-badge&logo=github)](https://github.com/muk0644/smolagents-ai-assistant/actions)
 [![Python](https://img.shields.io/badge/Python-3.10-green?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit)](https://smolagents-ai-assistant-up.streamlit.app/)
 [![Hugging Face](https://img.shields.io/badge/🤗-Hugging%20Face-yellow?style=for-the-badge)](https://huggingface.co/)
 [![smolagents](https://img.shields.io/badge/smolagents-Agent_Framework-1f72be?style=for-the-badge)](https://github.com/huggingface/smolagents)
 [![LangChain](https://img.shields.io/badge/LangChain-Integration-00a86b?style=for-the-badge)](https://www.langchain.com/)
@@ -19,7 +19,7 @@
 
 **An intelligent AI agent with advanced features for web search, weather queries, image generation and more!**
 
-🌐 **[Try the Live Demo](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/)**
+🌐 **[Try the Live Demo](https://smolagents-ai-assistant-up.streamlit.app/)**
 
 [Demo](#-demo) • [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Tools](#-tools)
 
@@ -68,7 +68,7 @@ This project is a **fully functional Agentic RAG (Retrieval Augmented Generation
 The application is deployed on two platforms, optimized for different use cases:
 
 **1. Streamlit Cloud (Rapid Prototyping)**
-- 👉 **[smolagents-ai-assistant-qwen-gemini.streamlit.app](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/)** 
+- 👉 **[smolagents-ai-assistant-up.streamlit.app](https://smolagents-ai-assistant-up.streamlit.app/)** 
 - Branch: `cicd-workflow2`
 - Quick iteration and real-time updates
 
@@ -697,7 +697,7 @@ def initialize_agent(selected_model_id="qwen"):
 ### `app.py` - Streamlit Frontend (Production-Ready UI)
 
 **Overview:**  
-`app.py` is the complete Streamlit application deployed on [Streamlit Cloud](https://smolagents-ai-assistant-qwen-gemini.streamlit.app/) featuring a production-grade multi-session chat interface UI
+`app.py` is the complete Streamlit application deployed on [Streamlit Cloud](https://smolagents-ai-assistant-up.streamlit.app/) featuring a production-grade multi-session chat interface UI
 
 #### 🎨 **UI Architecture**
 
