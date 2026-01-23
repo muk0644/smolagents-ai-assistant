@@ -8,7 +8,9 @@ integration for knowledge base retrieval.
 All RAG/retrieval logic is isolated here.
 """
 
-import datasets
+import json
+import os
+from pathlib import Path
 from smolagents import Tool
 from langchain_community.docstore.document import Document  # type: ignore
 from langchain_text_splitters import RecursiveCharacterTextSplitter  # type: ignore
@@ -147,16 +149,17 @@ class PartyPlanningRetrieverTool(Tool):
 # --- Guest Information Retriever Tool ---
 
 class GuestInfoRetrieverTool(Tool):
-    """Retrieves detailed information about party guests from Hugging Face dataset.
+    """Retrieves information about party guests using Chroma Vector Database.
     
-    Uses BM25 retrieval to find relevant guest information including names,
-    relations, descriptions, and email addresses from the agents-course/unit3-invitees
-    dataset.
+    Loads guest data from a local JSON file and uses Chroma DB for semantic search
+    with embeddings. This approach is more reliable than external datasets and works
+    seamlessly on both local and cloud deployments.
     """
     name = "guest_info_retriever"
     description = (
         "Retrieves detailed information about gala guests based on their name or relation. "
-        "Returns guest details including name, relation to host, biography, and email address."
+        "Returns guest details including name, relation to host, biography, and email address. "
+        "Uses Chroma vector database for semantic search."
     )
     inputs = {
         "query": {
@@ -168,55 +171,77 @@ class GuestInfoRetrieverTool(Tool):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._initialize_guest_dataset()
+        self.collection = None
+        self._initialize_chroma_db()
 
-    def _initialize_guest_dataset(self):
-        """Load guest dataset from Hugging Face and initialize retriever."""
+    def _initialize_chroma_db(self):
+        """Load guest data from JSON and initialize Chroma DB."""
         try:
-            # Load the dataset from Hugging Face
-            guest_dataset = datasets.load_dataset("agents-course/unit3-invitees", split="train")
+            import chromadb
             
-            # Convert dataset entries into Document objects
-            docs = [
-                Document(
-                    page_content="\n".join([
-                        f"Name: {guest['name']}",
-                        f"Relation: {guest['relation']}",
-                        f"Description: {guest['description']}",
-                        f"Email: {guest['email']}"
-                    ]),
-                    metadata={"name": guest["name"]}
+            # Find guests.json file (in same directory as this script)
+            current_dir = Path(__file__).parent
+            json_path = current_dir / "guests.json"
+            
+            # Load guest data from JSON
+            with open(json_path, "r", encoding="utf-8") as f:
+                guests_data = json.load(f)
+            
+            # Create Chroma client (in-memory, no persistence needed)
+            client = chromadb.Client()
+            
+            # Create or get collection
+            self.collection = client.get_or_create_collection(
+                name="party_guests",
+                metadata={"description": "Guest information for gala party"}
+            )
+            
+            # Add guest documents to Chroma
+            for idx, guest in enumerate(guests_data):
+                document_text = "\n".join([
+                    f"Name: {guest['name']}",
+                    f"Relation: {guest['relation']}",
+                    f"Description: {guest['description']}",
+                    f"Email: {guest['email']}"
+                ])
+                
+                self.collection.add(
+                    ids=[str(idx)],
+                    documents=[document_text],
+                    metadatas=[{"name": guest["name"], "email": guest["email"]}]
                 )
-                for guest in guest_dataset
-            ]
             
-            # Create BM25 retriever with top 3 results
-            self.retriever = BM25Retriever.from_documents(docs, k=3)
+            print(f"✅ Chroma DB initialized with {len(guests_data)} guests")
             
-        except ImportError as ie:
-            print(f"⚠️ Warning: Required packages not installed: {str(ie)}")
-            print("Run: pip install datasets langchain-community rank-bm25")
-            self.retriever = None
+        except ImportError:
+            print("⚠️ Warning: chromadb not installed. Run: pip install chromadb")
+            self.collection = None
+        except FileNotFoundError:
+            print(f"⚠️ Warning: guests.json not found at {json_path}")
+            self.collection = None
         except Exception as e:
-            print(f"⚠️ Warning: Could not load guest dataset: {str(e)}")
-            print("Make sure you have internet connection to download the dataset.")
-            self.retriever = None
+            print(f"⚠️ Warning: Failed to initialize Chroma DB: {str(e)}")
+            self.collection = None
 
     def forward(self, query: str) -> str:
-        """Retrieve relevant guest information based on the query."""
-        if self.retriever is None:
-            return "Error: Guest Info Retriever not properly initialized. Please check dependencies and internet connection."
+        """Retrieve relevant guest information using Chroma DB semantic search."""
+        if self.collection is None:
+            return "Error: Guest Info Retriever not properly initialized. Please check if chromadb is installed and guests.json exists."
         
         assert isinstance(query, str), "Your search query must be a string"
         
         try:
-            results = self.retriever.get_relevant_documents(query)
+            # Query Chroma DB for similar documents
+            results = self.collection.query(
+                query_texts=[query],
+                n_results=3
+            )
             
-            if not results:
+            if not results['documents'] or not results['documents'][0]:
                 return "No matching guest information found."
             
             # Return top 3 results combined
-            return "\n\n".join([doc.page_content for doc in results[:3]])
+            return "\n\n".join(results['documents'][0])
             
         except Exception as e:
             return f"Error retrieving guest information: {str(e)}"

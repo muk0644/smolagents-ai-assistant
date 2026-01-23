@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Ada Lovelace",
+    "relation": "best friend",
+    "description": "Lady Ada Lovelace is my best friend. She is an esteemed mathematician and writer, known for her work on Charles Babbage's proposed mechanical general-purpose computer, the Analytical Engine. She was the first to recognize that the machine had applications beyond pure calculation, and to have published the first algorithm intended to be carried out by such a machine. As a result, she is often regarded as the first computer programmer.",
+    "email": "ada.lovelace@example.com"
+  },
+  {
+    "name": "Dr. Nikola Tesla",
+    "relation": "old friend from university days",
+    "description": "Dr. Nikola Tesla is an old friend from university days. He is a Serbian-American inventor, electrical engineer, mechanical engineer, and futurist best known for his contributions to the design of the modern alternating current (AC) electricity supply system. Tesla conducted a range of experiments with mechanical oscillators/generators, electrical discharge tubes, and early X-ray imaging. He also built a wireless controlled boat, one of the first ever exhibited.",
+    "email": "nikola.tesla@gmail.com"
+  },
+  {
+    "name": "Marie Curie",
+    "relation": "no relation",
+    "description": "Marie Curie was a groundbreaking physicist and chemist who conducted pioneering research on radioactivity. She was the first woman to win a Nobel Prize, the first person to win the Nobel Prize twice, and the only person to win the Nobel Prize in two scientific fields. Her achievements included the development of the theory of radioactivity (a term she coined), techniques for isolating radioactive isotopes, and the discovery of two elements, polonium and radium.",
+    "email": "marie.curie@example.com"
+  },
+  {
+    "name": "Leonardo da Vinci",
+    "relation": "distant cousin",
+    "description": "Leonardo da Vinci is a distant cousin of mine. He was an Italian polymath of the Renaissance whose areas of interest included invention, drawing, painting, sculpture, architecture, science, music, mathematics, engineering, literature, anatomy, geology, astronomy, botany, paleontology, and cartography. He is widely considered one of the greatest painters of all time and perhaps the most diversely talented person ever to have lived.",
+    "email": "leonardo.davinci@renaissance.it"
+  },
+  {
+    "name": "Alan Turing",
+    "relation": "colleague from work",
+    "description": "Alan Turing is a colleague from work. He was an English mathematician, computer scientist, logician, cryptanalyst, philosopher, and theoretical biologist. Turing was highly influential in the development of theoretical computer science, providing a formalization of the concepts of algorithm and computation with the Turing machine. He is widely considered to be the father of theoretical computer science and artificial intelligence.",
+    "email": "alan.turing@bletchley.uk"
+  }
+]

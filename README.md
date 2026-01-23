@@ -465,17 +465,30 @@ This project features **two complementary RAG approaches** for different use cas
 
 ---
 
-### **Type 2: External Dataset Integration (GuestInfoRetrieverTool)**
+### **Type 2: Vector Database Integration (GuestInfoRetrieverTool)**
 
-**Purpose**: Dynamic access to external datasets from Hugging Face Hub
+**Purpose**: Semantic search with embeddings for guest information using Chroma DB
 
-- **Source**: HuggingFace dataset `agents-course/unit3-invitees` (split="train")
+- **Source**: Local JSON file (`guests.json`) stored in Git repository
+- **Database**: Chroma Vector Database (in-memory, no external server needed)
 - **Data Structure**: Guest information with 4 fields per record
-- **Algorithm**: BM25 (semantic search by name or relation)
-- **Retrieval**: Top 3 most relevant guests
+- **Algorithm**: Vector embeddings with semantic similarity search
+- **Retrieval**: Top 3 most relevant guests based on semantic similarity
 - **Use Case**: Guest management, contact information, party invitations
 
-**Dataset Fields**:
+**Data Storage Architecture**:
+```
+GitHub Repository (Git)
+└── guests.json (5 guests with embeddings)
+    │
+    └─> Streamlit Cloud / Local App Startup
+        ├─ Loads JSON file
+        ├─ Initializes Chroma DB in-memory
+        ├─ Embeds guest data
+        └─ Ready for semantic search ✅
+```
+
+**Guest Fields**:
 ```yaml
 Name: String (Guest's full name)
   - Example: "Ada Lovelace", "Dr. Nikola Tesla", "Marie Curie"
@@ -485,46 +498,60 @@ Relation: String (How the guest is related to the host)
 
 Description: String (Biography or interesting facts about the guest)
   - Example: "Lady Ada Lovelace is my best friend. She is an esteemed 
-    mathematician and friend. She is renowned for her pioneering work 
-    in mathematics and computing..."
+    mathematician and pioneering computer scientist..."
 
 Email: String (Contact information)
   - Example: "ada.lovelace@example.com"
 ```
 
-**Dataset Sample**:
-| Name | Relation | Description | Email |
-|------|----------|-------------|-------|
-| Ada Lovelace | best friend | Esteemed mathematician, pioneering work on Analytical Engine | ada.lovelace@example.com |
-| Dr. Nikola Tesla | old friend from university days | Recently patented wireless energy transmission system, passionate about pigeons | nikola.tesla@gmail.com |
-| Marie Curie | no relation | Groundbreaking physicist & chemist, famous for radioactivity research | marie.curie@example.com |
+**Current Guest Dataset**:
+| Name | Relation | Email |
+|------|----------|-------|
+| Ada Lovelace | best friend | ada.lovelace@example.com |
+| Dr. Nikola Tesla | old friend from university days | nikola.tesla@gmail.com |
+| Marie Curie | no relation | marie.curie@example.com |
+| Leonardo da Vinci | distant cousin | leonardo.davinci@renaissance.it |
+| Alan Turing | colleague from work | alan.turing@bletchley.uk |
 
 **Advantages**:
-- 🌐 Dynamic external data
-- 📊 Real-world datasets from HuggingFace Hub
-- 🔄 Automatically downloads on first use
-- 🎯 Semantic search by name or relation
-- 💾 Scalable to larger datasets
+- 🟣 **Chroma Vector DB**: No external server required
+- 📄 **JSON Versioning**: Guest data stored in Git, version controlled
+- ⚡ **Fast Startup**: Initializes from JSON on app start (0.1 seconds)
+- 🔐 **No External APIs**: Works entirely locally
+- ☁️ **Cloud Compatible**: Works perfectly on Streamlit Cloud
+- 🎯 **Semantic Search**: Vector embeddings for intelligent matching
+- 📝 **Editable**: Simply edit `guests.json` to add/update guests
+
+**How It Works**:
+1. **On App Startup**: JSON file is read from the repository
+2. **Chroma Initialization**: Vector embeddings are generated in-memory
+3. **Semantic Search**: Queries matched against guest descriptions using vectors
+4. **Result Ranking**: Top 3 most relevant guests returned by similarity score
 
 **Example Queries**:
 ```
 "Who is Ada Lovelace and how do I contact her?"
 "Tell me about my old friend from university days"
-"Find all best friends in my guest list"
+"Find guests related to mathematics and computing"
+"What's the email of the colleague from work?"
 ```
 
 ---
 
 ### **Architecture Comparison**
 
-| Feature | Static KB | External Dataset |
-|---------|-----------|------------------|
-| **Source** | Embedded JSON | HuggingFace Hub |
-| **Real-time Updates** | ❌ No | ✅ Yes |
-| **Dependencies** | ✅ None | Requires datasets library |
-| **Latency** | ⚡ Very Fast | 🌐 Network dependent |
-| **Scalability** | 📦 Limited | 📊 Unlimited |
-| **Use Case** | Domain expertise | Data management |
+| Feature | Static KB (BM25) | Vector DB (Chroma) |
+|---------|------------------|---------------------|
+| **Source** | Embedded in code | JSON file in Git |
+| **Search Method** | BM25 ranking | Vector embeddings |
+| **External Server** | ❌ No | ❌ No |
+| **Dependencies** | Minimal | chromadb package |
+| **Cloud Deployment** | ✅ Works | ✅ Works perfectly |
+| **Latency** | ⚡ Very Fast | ⚡ Fast (embedded) |
+| **Semantic Understanding** | Good | ✅ Excellent |
+| **Editability** | Code changes | Edit JSON easily |
+| **Scalability** | Limited | Good (for embeddings) |
+| **Use Case** | Party ideas | Guest management |
 
 ---
 
