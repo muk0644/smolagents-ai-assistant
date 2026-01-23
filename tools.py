@@ -133,13 +133,27 @@ def create_serpapi_langchain_tool():
         Tool: SerpAPI tool wrapped for smolagents compatibility
     """
     try:
-        # Dynamic import to avoid errors if langchain-community not installed
-        from langchain.agents import load_tools  # type: ignore
+        # Dynamic import using the correct modern path for LangChain
+        from langchain_community.utilities import SerpAPIWrapper  # type: ignore
         
-        # Load SerpAPI tool from LangChain (requires SERPAPI_API_KEY in environment)
-        langchain_tools = load_tools(["serpapi"])
-        serpapi_tool = Tool.from_langchain(langchain_tools[0])
-        return serpapi_tool
+        # Create SerpAPI wrapper (automatically uses SERPAPI_API_KEY from environment)
+        search = SerpAPIWrapper()
+        
+        # Create a simple tool wrapper for smolagents
+        class SerpAPITool(Tool):
+            name = "serpapi_search"
+            description = "Search the internet using SerpAPI for real-time information, news, and data."
+            inputs = {"query": {"type": "string", "description": "The search query"}}
+            output_type = "string"
+            
+            def forward(self, query: str) -> str:
+                try:
+                    return search.run(query)
+                except Exception as e:
+                    return f"SerpAPI search error: {str(e)}"
+        
+        return SerpAPITool()
+        
     except ImportError as ie:
         print(f"⚠️ Warning: langchain-community not installed: {str(ie)}")
         print("Run: pip install langchain-community")
